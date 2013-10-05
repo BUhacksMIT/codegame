@@ -2,6 +2,23 @@ import logging
 import sys
 import socketserver
 import queue
+import time
+
+
+ships = []
+
+def Ship():
+    def __init__(self, x, y):
+        self.coords = (x, y)
+        self.health = 100
+
+def AddToGrid(ship):
+    ships.append(ship)
+
+
+game_width = 20
+game_height = 40
+game_grid = [[0 for x in range(1, game_width)] for x in game_height]
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
@@ -29,6 +46,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
             data = self.request.recv(1024)
             #self.logger.debug('recv()->"%s"', data)
             queue.put(data)
+            time.sleep(1)
             self.request.send(data)
         return
 
@@ -107,4 +125,5 @@ if __name__ == '__main__':
     while (True):
         if (queue.empty() == False):
                 msg = queue.get()
-                print(msg)
+                parts = msg.split(",")
+                opcode = int(parts[0])

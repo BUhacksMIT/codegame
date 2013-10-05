@@ -3,6 +3,22 @@ import sys
 import time
 import logging
 
+class Opcodes():
+    initialize_ship = 1
+    get_player_coords = 2
+
+
+
+def SendCommand(opcode):
+    message = opcode + ","
+    s.send(bytes(message, "UTF-8"))
+    response = s.recv(4096)
+    return response
+
+
+def GetPlayerCoords():
+    return SendCommand(Opcodes.get_player_coords)
+
 ip, port = "localhost", 1337
 
 
@@ -19,7 +35,8 @@ s.connect((ip, port))
 message = 'Hello, world yo 4'
 logger.debug('sending data: "%s"', message)
 while (True):
-    len_sent = s.send(bytes(message, "UTF-8"))
+    pc = GetPlayerCoords()
+    print(str(pc))
     time.sleep(1);
 
 # Receive a response
@@ -31,3 +48,4 @@ logger.debug('response from server: "%s"', response)
 logger.debug('closing socket')
 s.close()
 logger.debug('done')
+
