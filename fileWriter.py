@@ -1,4 +1,4 @@
-import opCodes
+from opcodes import opCodes
 
 class fileWriter:
     
