@@ -2,12 +2,19 @@ import socket
 import sys
 import time
 import logging
+import pickle
 
 class Opcodes():
     initialize_ship = 1
     get_player_coords = 2
 
-
+class Ship():
+    def __init__(self, player, x, y):
+        self.coords = (x, y)
+        self.x = x
+        self.y = y
+        self.player = player
+        self.health = 100
 
 def SendCommand(opcode, *args):
     message = str(opcode) + ","
@@ -15,16 +22,22 @@ def SendCommand(opcode, *args):
         message += str(arg) + ","
     print("sending command: " + message)
     s.send(bytes(str(message), "UTF-8"))
-    response = s.recv(4096).decode("UTF-8")
+    response = s.recv(4096)
+    print(response)
     return response
 
 def Initialize_Ship(x, y):
-   return SendCommand(1, x, y)
+    print("init ship")
+    return pickle.loads(SendCommand(1, x, y))
 
 def GetPlayerCoords():
-    return SendCommand(Opcodes.get_player_coords)
+    response = SendCommand(Opcodes.get_player_coords)
+    print("res:",response)
+    response = pickle.loads(response)
+    print("res2",response)
+    return response
 
-ip, port = "localhost", 1337
+ip, port = "localhost", 1338
 
 
 logger = logging.getLogger('client')
@@ -39,10 +52,14 @@ s.connect((ip, port))
 # Send the data
 message = 'Hello, world yo 4'
 logger.debug('sending data: "%s"', message)
+
+SendCommand(3, 1)
+
 while (True):
-    pc = Initialize_Ship(5, 5)
-    print(str(pc))
-    time.sleep(1);
+    rescode, resval = Initialize_Ship(5, 5)
+    print(rescode)
+    print(resval)
+    time.sleep(100);
 
 # Receive a response
 logger.debug('waiting for response')

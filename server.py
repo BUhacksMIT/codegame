@@ -3,23 +3,29 @@ import sys
 import socketserver
 import queue
 import time
+import pickle
+
+class langs():
+    Python = 1
+    Java = 2
 
 class retcode():
     success = 1
     fail = -1
 
 class Ship():
-    def __init__(self, x, y):
+    def __init__(self, player, x, y):
         self.coords = (x, y)
         self.x = x
         self.y = y
+        self.player = player
         self.health = 100
 
 class Grid():
     def __init__(self, width, height):
         self.game_width = width
         self.game_height = height
-        self.ships = []
+        self.ships = [Ship(1337, 10, 10)]
         self.grid = [[0 for x in range(self.game_width)] for x in range(self.game_height)]
 
     def is_empty(self, x, y):
@@ -33,6 +39,7 @@ class Grid():
         self.grid[ship.x][ship.y] = ship
 
 playerqueues = {}
+playerlangs = {}
 
 def ReturnToPlayer(playerid, retval):
     p = playerqueues[playerid]
@@ -72,9 +79,13 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
             while (pqueue.empty() == True):
                 pass
             if (pqueue.empty() == False):
-                r = pqueue.get()
-                print("sending " + str(r))
-                self.request.send(bytes(str(r), "UTF-8"))
+                (rcode, rval) = pqueue.get()
+                if (playerlangs[self.playerid] == langs.Python):
+                    r = pickle.dumps((rcode, rval))
+                    self.request.send(r)
+                elif (playerlangs[self.playerid] == langs.Java):
+                    #self.request.send(bytes(str(r), "UTF-8"))
+                    pass
             time.sleep(1)
         return
 
@@ -162,12 +173,24 @@ if __name__ == '__main__':
                     y = int(args[2])
                     if (grid.is_empty(x, y)):
                         print("adding to grid")
-                        newship = Ship(x, y)
+                        newship = Ship(playerid, x, y)
                         grid.place_ship(newship)
-                        ReturnToPlayer(playerid, retcode.success)
+                        pdata = (retcode.success, None)
+                        ReturnToPlayer(playerid, pdata)
                     else:
-                        ReturnToPlayer(playerid, retcode.fail)
+                        pdata = (retcode.fail, None)
+                        ReturnToPlayer(playerid, pdata)
                 elif (opcode == 2):
-                    pass
+                    ships = []
+                    for ship in grid.ships:
+                        if ship.player != playerid:
+                            ships.append(ship)
+                    pdata = (retcode.success, ships)
+                    ReturnToPlayer(playerid, pdata)
+                elif (opcode == 3):
+                    print ("got language of ", str(args[1]), " for player ", str(playerid))
+                    langcode = int(args[1])
+                    playerlangs[playerid] = langcode
+                    ReturnToPlayer(playerid, (retcode.success, None))
                 else:
                     pass
