@@ -10,16 +10,16 @@ class fileWriter:
         #create ship
         if opCode == 1:
             # "playerID opCode (x,y)" where (x,y) is a location on the grid
-            print(playerID,1,loc,file = self.logFile)
+            print(playerID,1,loc,file = self.logFile,end="\r\n")
         #Move ship from loc to newLoc
         elif opCode == 2:
             # "playerID opcode (x,y) (a,b)" where (x,y) and (a,b) are locations on the grid
-            print(playerID,2,loc,newLoc,file = self.logFile)
+            print(playerID,2,loc,newLoc,file = self.logFile,end="\r\n")
         #Fire from loc to newLoc
         elif opCode == 3:
             # "playerID opcode (x,y) (a,b)" where (x,y) and (a,b) are locations on the grid
-            print(playerID,3,loc,newLoc,file = self.logFile)
+            print(playerID,3,loc,newLoc,file = self.logFile,end="\r\n")
         #Remove a ship from the grid
         elif opCode == 4:
             # "playerID opCode (x,y)" where (x,y) is a location on the grid
-            print(playerID,4,loc,file = self.logFile)
+            print(playerID,4,loc,file = self.logFile,end="\r\n")
