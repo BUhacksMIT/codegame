@@ -9,6 +9,7 @@ class Opcodes():
     get_player_coords = 2
     choose_lang = 3
     move = 4
+    get_delay = 5
 class langs():
     Python = 1
     Java = 2
@@ -55,6 +56,10 @@ def GetPlayerCoords():
 def Move(shipid, direction):
     return pickle.loads(SendCommand(Opcodes.move, shipid, direction))
 
+def GetDelay():
+    return pickle.loads(SendCommand(Opcodes.get_delay))
+def Fire(to_x, to_y):
+    pass
 ip, port = "localhost", 1338
 
 
@@ -77,10 +82,14 @@ print(rescode)
 print(resval)
 shiptomove=resval
 while (True):
-    time.sleep(1);
-    rescode, resval = Move(shiptomove,Directions.up)
-    print(rescode)
+    rescode, resval = GetDelay()
     print(resval)
+    if (resval > 0):
+        print("I can't move for another ", str(resval), " ticks!")
+    else:
+        rescode, resval = Move(shiptomove,Directions.up)
+        print(rescode)
+        print(resval)
     time.sleep(1);
 
 # Receive a response
