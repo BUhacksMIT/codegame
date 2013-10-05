@@ -4,33 +4,54 @@ import socketserver
 import queue
 import time
 
+class retcode():
+    success = 1
+    fail = -1
 
-ships = []
-
-def Ship():
+class Ship():
     def __init__(self, x, y):
         self.coords = (x, y)
+        self.x = x
+        self.y = y
         self.health = 100
 
-def AddToGrid(ship):
-    ships.append(ship)
+class Grid():
+    def __init__(self, width, height):
+        self.game_width = width
+        self.game_height = height
+        self.ships = []
+        self.grid = [[0 for x in range(self.game_width)] for x in range(self.game_height)]
 
+    def is_empty(self, x, y):
+        if (self.grid[x][y] == 0):
+            return True
+        else:
+            return False
 
-game_width = 20
-game_height = 40
-game_grid = [[0 for x in range(1, game_width)] for x in game_height]
+    def place_ship(self, ship):
+        self.ships.append(ship)
+        self.grid[ship.x][ship.y] = ship
+
+playerqueues = {}
+
+def ReturnToPlayer(playerid, retval):
+    p = playerqueues[playerid]
+    p.put(retval)
+
+grid = Grid(20, 40)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
                     )
 
-queue = queue.Queue()
+q = queue.Queue()
 
 class EchoRequestHandler(socketserver.BaseRequestHandler):
     
     def __init__(self, request, client_address, server):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
+        self.playerid = client_address[1]
         socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -45,9 +66,16 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         while (1==1):
             data = self.request.recv(1024)
             #self.logger.debug('recv()->"%s"', data)
-            queue.put(data)
+            q.put((self.playerid, data))
             time.sleep(1)
-            self.request.send(data)
+            pqueue = playerqueues[self.playerid]
+            while (pqueue.empty() == True):
+                pass
+            if (pqueue.empty() == False):
+                r = pqueue.get()
+                print("sending " + str(r))
+                self.request.send(bytes(str(r), "UTF-8"))
+            time.sleep(1)
         return
 
     def finish(self):
@@ -80,6 +108,7 @@ class EchoServer(socketserver.TCPServer):
 
     def verify_request(self, request, client_address):
         self.logger.debug('verify_request(%s, %s)', request, client_address)
+        playerqueues[client_address[1]] = queue.Queue()
         return socketserver.TCPServer.verify_request(self, request, client_address)
 
     def process_request(self, request, client_address):
@@ -123,7 +152,22 @@ if __name__ == '__main__':
     logger.info('Server on %s:%s', ip, port)
 
     while (True):
-        if (queue.empty() == False):
-                msg = queue.get()
-                parts = msg.split(",")
-                opcode = int(parts[0])
+        if (q.empty() == False):
+                print ("got msg")
+                (playerid, msg) = q.get()
+                args = msg.decode("UTF-8").split(",")
+                opcode = int(args[0])
+                if (opcode == 1):
+                    x = int(args[1])
+                    y = int(args[2])
+                    if (grid.is_empty(x, y)):
+                        print("adding to grid")
+                        newship = Ship(x, y)
+                        grid.place_ship(newship)
+                        ReturnToPlayer(playerid, retcode.success)
+                    else:
+                        ReturnToPlayer(playerid, retcode.fail)
+                elif (opcode == 2):
+                    pass
+                else:
+                    pass
