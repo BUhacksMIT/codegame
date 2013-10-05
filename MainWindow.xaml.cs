@@ -29,6 +29,7 @@ namespace game_interface
                //CALL this to create the grid:            
                 //createGrid(,);
             colorArray(40, 20);
+            startGame();
         }//main
 
         void colorArray(int rows, int cols)
@@ -68,6 +69,68 @@ namespace game_interface
         {
             grid[loc[0]][loc[1]] = 0;
             //Implement blow up graphic
+
+        }
+
+        void startGame()
+        {
+            string log;
+            string myPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (System.IO.Directory.Exists(myPath + @"\log"))
+            {
+                log = File.ReadAllText(myPath + @"\log" + @"\log.txt");
+                string newLine = "\r\n";
+                string[] commands = Regex.Split(log, newLine);
+                for (int i = 0; i < commands[i].Length; i++)
+                {
+                    if (commands[i][0] == '1')
+                    {
+                        //Place a new ship
+                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                        string[] arguments = commands[i].Split(';');
+                        int playerID = Convert.ToInt32(arguments[0]);
+                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                        //Call function(playerID,loc)
+                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
+                        self.placeShip(playerID, loc);
+                    }
+                    else if (commands[i][0] == '2')
+                    {
+                        //Move a ship
+                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                        string[] arguments = commands[i].Split(';');
+                        int playerID = Convert.ToInt32(arguments[0]);
+                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                        int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
+                        //Call function(playerID,loc,newLoc)
+                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
+                        moveShip(playerID, loc, newLoc);
+                    }
+                    else if (commands[i][0] == '3')
+                    {
+                        //Fire at another ship
+                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                        string[] arguments = commands[i].Split(';');
+                        int playerID = Convert.ToInt32(arguments[0]);
+                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                        int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
+                        //Call function(playerID,loc,newLoc)
+                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
+                        fire(playerID, loc, newLoc);
+                    }
+                    else if (commands[i][0] == '4')
+                    {
+                        //Remove a ship from grid
+                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                        string[] arguments = commands[i].Split(';');
+                        int playerID = Convert.ToInt32(arguments[0]);
+                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                        //Call function(playerID,loc)
+                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
+                        removeShip(playerID, loc);
+                    }
+                }
+            }
 
         }
     }//partial class
