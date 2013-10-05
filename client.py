@@ -1,24 +1,33 @@
 import socket
 import sys
 import time
+import logging
 
-HOST, PORT = "localhost", 1337
-data = " ".join(sys.argv[1:])
+ip, port = "localhost", 1337
 
-# Create a socket (SOCK_STREAM means a TCP socket)
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-try:
-    # Connect to server and send data
-    sock.connect((HOST, PORT))
-    while (1==1):
-        sock.sendall(data + "\n")
+logger = logging.getLogger('client')
+logger.info('client on %s:%s', ip, port)
 
-        # Receive data from the server and shut down
-        received = str(sock.recv(1024))
-        sys.sleep(1000);
-finally:
-    sock.close()
+# Connect to the server
+logger.debug('creating socket')
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+logger.debug('connecting to server')
+s.connect((ip, port))
 
-print("Sent:     {}".format(data))
-print("Received: {}".format(received))
+# Send the data
+message = 'Hello, world'
+logger.debug('sending data: "%s"', message)
+while (True):
+    len_sent = s.send(bytes(message, "UTF-8"))
+    time.sleep(1);
+
+# Receive a response
+logger.debug('waiting for response')
+response = s.recv(len_sent)
+logger.debug('response from server: "%s"', response)
+
+# Clean up
+logger.debug('closing socket')
+s.close()
+logger.debug('done')
