@@ -1,10 +1,13 @@
 import logging
 import sys
 import socketserver
+import queue
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
                     )
+
+queue = queue.Queue()
 
 class EchoRequestHandler(socketserver.BaseRequestHandler):
     
@@ -24,7 +27,8 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         # Echo the back to the client
         while (1==1):
             data = self.request.recv(1024)
-            self.logger.debug('recv()->"%s"', data)
+            #self.logger.debug('recv()->"%s"', data)
+            queue.put(data)
             self.request.send(data)
         return
 
@@ -84,12 +88,23 @@ if __name__ == '__main__':
     server = EchoServer(address, EchoRequestHandler)
     ip, port = server.server_address # find out what port we were given
 
+    address2 = ('localhost', 1338) # let the kernel give us a port
+    server2 = EchoServer(address2, EchoRequestHandler)
+    
+
     t = threading.Thread(target=server.serve_forever)
     t.setDaemon(True) # don't hang on exit
     t.start()
+
+    t2 = threading.Thread(target=server2.serve_forever)
+    t2.setDaemon(True) # don't hang on exit
+    t2.start()
+
 
     logger = logging.getLogger('client')
     logger.info('Server on %s:%s', ip, port)
 
     while (True):
-        pass
+        if (queue.empty() == False):
+                msg = queue.get()
+                print(msg)

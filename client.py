@@ -16,7 +16,7 @@ logger.debug('connecting to server')
 s.connect((ip, port))
 
 # Send the data
-message = 'Hello, world'
+message = 'Hello, world yo 4'
 logger.debug('sending data: "%s"', message)
 while (True):
     len_sent = s.send(bytes(message, "UTF-8"))
