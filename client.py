@@ -7,6 +7,21 @@ import pickle
 class Opcodes():
     initialize_ship = 1
     get_player_coords = 2
+    choose_lang = 3
+    move = 4
+class langs():
+    Python = 1
+    Java = 2
+
+class Directions():
+    up = 1
+    up_right = 2
+    right = 3
+    down_right = 4
+    down = 5
+    down_left = 6
+    left = 7
+    up_left = 8
 
 class Ship():
     def __init__(self, player, x, y):
@@ -37,6 +52,9 @@ def GetPlayerCoords():
     print("res2",response)
     return response
 
+def Move(shipid, direction):
+    return pickle.loads(SendCommand(Opcodes.move, shipid, direction))
+
 ip, port = "localhost", 1338
 
 
@@ -53,13 +71,17 @@ s.connect((ip, port))
 message = 'Hello, world yo 4'
 logger.debug('sending data: "%s"', message)
 
-SendCommand(3, 1)
-
+SendCommand(Opcodes.choose_lang, langs.Python) # 1 is for Python
+rescode, resval = Initialize_Ship(5, 5)
+print(rescode)
+print(resval)
+shiptomove=resval
 while (True):
-    rescode, resval = Initialize_Ship(5, 5)
+    time.sleep(1);
+    rescode, resval = Move(shiptomove,Directions.up)
     print(rescode)
     print(resval)
-    time.sleep(100);
+    time.sleep(1);
 
 # Receive a response
 logger.debug('waiting for response')
