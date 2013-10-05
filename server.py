@@ -10,18 +10,43 @@ playerdelays = {}
 def AddPlayerDelay(playerid, delayamt):
     playerdelays[playerid] += delayamt
 
+
+
+max_ships = 5
+max_range = 5
+tick_count = 0
+max_ticks_to_add_ships = 20
+
+def KillPlayer(playerid):
+    del(playerrecvqueues[playerid])
+    del(playersendqueues[playerid])
+    for ship in list(grid.ships.values()):
+        ship.alive = False
+        grid.grid[ship.x][ship.y] = 0
+    return True
+
 def TickClock():
     for k in playerdelays:
         if (playerdelays[k] > 0):
             playerdelays[k] -= 1
+    tick_count += 1
+    if (tick_count > max_ticks_to_add_ships):
+        shipcount = {}
+        for ship in list(grid.ships.values()):
+            shipcount[playerid] = shipcount.setdefault(playerid, 0) + 1
+        for player in list(shipcount.keys()):
+            if (shipcount[player] < max_ships):
+                KillPlayer(player)
+        return True
 
-max_ships = 5
 class Opcodes():
     initialize_ship = 1
     get_player_coords = 2
     choose_lang = 3
     move = 4
     get_delay = 5
+    fire = 6
+    get_my_alive_ships = 7
 
     def GetDelay(opcode): #static method
         if (opcode == Opcodes.initialize_ship):
@@ -33,6 +58,10 @@ class Opcodes():
         elif (opcode == Opcodes.move):
             return 10
         elif(opcode == Opcodes.get_delay):
+            return 0
+        elif (opcode == Opcodes.fire):
+            return 20
+        elif (opcode == Opcodes.get_my_alive_ships):
             return 0
 
 class Grid():
@@ -57,7 +86,9 @@ class Grid():
         return self.ships[(playerid, shipid)]
 
     def MoveShip(self, playerid, shipid, newx, newy):
-        if (self.is_empty(newx, newy)):
+        if (newx >= game_width or newx < 0 or newy >= game_height or newy < 0):
+            return retcode.outofbounds
+        elif (self.is_empty(newx, newy)):
             shiptomove = self.GetShipById(playerid, shipid)
             oldx = shiptomove.x
             oldy = shiptomove.y
@@ -65,9 +96,21 @@ class Grid():
             self.grid[oldx][oldy] = 0
             shiptomove.x = newx
             shiptomove.y = newy
-
+            return retcode.success
         else:
-            return False
+            return retcode.alreadyoccupied
+
+    def ProcessFire(self, playerid, shipid, to_x, to_y):
+        if (to_x >= game_width or to_y >= game_height or to_x < 0 or to_y < 0):
+            return ((retcode.outofbounds, (game_width, game_height)))
+        if (self.grid[to_x][to_y] != 0):
+            killed = self.grid[to_x][to_y]
+            ret = ((retcode.hit, (killed.player, killed.shipid)))
+            self.grid[to_x][to_y] = 0
+            self.ships[(killed.player, killed.shipid)].alive = False
+            return ret
+        else:
+            return (retcode.miss, None)
 
 grid = Grid(20, 40)
 
@@ -87,15 +130,20 @@ class langs():
 
 class retcode():
     success = 1
+    hit = 2
     fail = -1
     toomanyships = -2
     alreadyoccupied = -3
+    outofbounds = -4
+    outofrange = -5
+    miss = -6
 
 class Ship():
     def __init__(self, player, x, y):
         self.coords = (x, y)
         self.x = x
         self.y = y
+        self.alive = True
         self.shipid = grid.playershipcount[player] + 1
         self.player = player
         self.health = 100
@@ -123,6 +171,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
         self.playerid = client_address[1]
+        self.request.settimeout(1.0)
         socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -135,28 +184,33 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
 
         # Echo the back to the client
         while (1==1):
-            data =  self.request.recv(1024, socket.MSG_PEEK)
-            args = data.decode("UTF-8").split(",")
-            opcode = int(args[0])
-            if (opcode != Opcodes.get_delay):
-                while (playerdelays[self.playerid] > 0):
-                    pass
-            data = self.request.recv(1024)
-            #self.logger.debug('recv()->"%s"', data)
-            q = playerrecvqueues[self.playerid]
-            q.put((self.playerid, data))
-            time.sleep(1)
-            pqueue = playersendqueues[self.playerid]
-            while (pqueue.empty() == True):
-                pass
-            if (pqueue.empty() == False):
-                (rcode, rval) = pqueue.get()
-                if (playerlangs[self.playerid] == langs.Python):
-                    r = pickle.dumps((rcode, rval))
-                    self.request.send(r)
-                elif (playerlangs[self.playerid] == langs.Java):
-                    #self.request.send(bytes(str(r), "UTF-8"))
-                    pass
+            try:
+                data =  self.request.recv(1024, socket.MSG_PEEK)
+                args = data.decode("UTF-8").split(",")
+                opcode = int(args[0])
+                if (opcode != Opcodes.get_delay):
+                    while (playerdelays[self.playerid] > 0):
+                        pass
+                data = self.request.recv(1024)
+                #self.logger.debug('recv()->"%s"', data)
+                q = playerrecvqueues[self.playerid]
+                q.put((self.playerid, data))
+                time.sleep(1)
+                pqueue = playersendqueues[self.playerid]
+                while (pqueue.empty() == True):
+                   pass
+                if (pqueue.empty() == False):
+                    (rcode, rval) = pqueue.get()
+                    if (playerlangs[self.playerid] == langs.Python):
+                        r = pickle.dumps((rcode, rval))
+                        self.request.send(r)
+                    elif (playerlangs[self.playerid] == langs.Java):
+                        #self.request.send(bytes(str(r), "UTF-8"))
+                        pass
+            except:
+                KillPlayer(self.playerid)
+                print ("Player with id ", str(self.playerid), " disconnected unexpectedly!")
+                return
             time.sleep(1)
         return
 
@@ -289,21 +343,45 @@ if __name__ == '__main__':
                             newy += 1
                         if (movedir == Directions.down or movedir == Directions.down_left or movedir == Directions.down_right):
                             newy -= 1
-                        if (grid.MoveShip(playerid, shipid, newx, newy)):
+                        moveret = grid.MoveShip(playerid, shipid, newx, newy)
+                        if (moveret == retcode.success):
                             ReturnToPlayer(playerid, (retcode.success, (newx, newy)))
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.move))
                             continue
+                        elif (moveret == retcode.outofbounds):
+                            ReturnToPlayer(playerid, (moveret, (game_width, game_height)))
+                            AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.move))
+                            continue
                         else:
-                            ReturnToPlayer(playerid, (retcode.alreadyoccupied, (playership.x, playership.y)))
+                            ReturnToPlayer(playerid, (moveret, (playership.x, playership.y)))
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.move))
                             continue
                     elif (opcode == Opcodes.get_delay):
                         print("sending delay")
                         ReturnToPlayer(playerid, (retcode.success, playerdelays[playerid]))
                         AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_delay))
+                    elif (opcode == Opcodes.fire):
+                        shipid = int(args[1])
+                        to_x = int(args[2])
+                        to_y = int(args[3])
+                        playership = grid.GetShipById(playerid, shipid)
+                        if (abs(to_x - playership.x) < max_range and abs(to_y-playership.y) < max_range):
+                            ReturnToPlayer(playerid, grid.ProcessFire(playerid, shipid, to_x, to_y))
+                            AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))
+                        else:
+                            ReturnToPlayer(playerid, (retcode.outofrange, max_range))
+                            AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))                            
+                            continue
+                    elif (opcode == Opcodes.get_my_alive_ships):
+                            alive = []
+                            for ship in list(grid.ships.values()):
+                                if (ship.alive == True and ship.player == playerid):
+                                    alive.append(ship.shipid)
+                            ReturnToPlayer(playerid, (retcode.success, alive))
+                            AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_my_alive_ships)) 
                     else:
                         print("invalid opcode", str(opcode))
                         pass
         TickClock()
         print("tick!")
-        time.sleep(1)
+        time.sleep(0.1)

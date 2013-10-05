@@ -10,6 +10,9 @@ class Opcodes():
     choose_lang = 3
     move = 4
     get_delay = 5
+    fire = 6
+    get_my_alive_ships = 7
+
 class langs():
     Python = 1
     Java = 2
@@ -58,8 +61,12 @@ def Move(shipid, direction):
 
 def GetDelay():
     return pickle.loads(SendCommand(Opcodes.get_delay))
-def Fire(to_x, to_y):
-    pass
+def Fire(shipid, to_x, to_y):
+    return pickle.loads(SendCommand(Opcodes.fire, shipid, to_x, to_y))
+
+def GetMyAliveShips():
+    return pickle.loads(SendCommand(Opcodes.get_my_alive_ships))
+
 ip, port = "localhost", 1338
 
 
@@ -87,7 +94,7 @@ while (True):
     if (resval > 0):
         print("I can't move for another ", str(resval), " ticks!")
     else:
-        rescode, resval = Move(shiptomove,Directions.up)
+        rescode, resval = Fire(shiptomove, 15, 15)
         print(rescode)
         print(resval)
     time.sleep(1);
