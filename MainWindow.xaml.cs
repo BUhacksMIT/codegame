@@ -72,6 +72,11 @@ namespace game_interface
 
         }
 
+        void endGame()
+        {
+            //Display the winner
+        }
+
         void startGame()
         {
             string log;
@@ -128,6 +133,13 @@ namespace game_interface
                         //Call function(playerID,loc)
                         //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
                         removeShip(playerID, loc);
+                    }
+                    else if (commands[i][0] == '5')
+                    {
+                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                        string[] arguments = commands[i].Split(';');
+                        int playerID = Convert.ToInt32(arguments[0]);
+                        endGame(playerID);
                     }
                 }
             }
