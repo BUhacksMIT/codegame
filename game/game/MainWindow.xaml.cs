@@ -24,16 +24,19 @@ namespace game_interface
         {
             InitializeComponent();
             //define the size of the grid
-            const int rows = 40, cols = 20;
+            const int rows = 20, cols = 20;
 
             //create the grid:    
             createGrid(rows,cols);
            
             //place an object in it...currently a rectangle(future version will let you pass the actual object)
-            placeObj(1, 3, rows, cols);
+            
 
-            //place image
-            placeIM();
+            //place image in coordinate x and y
+            double[] x = {1, 5, 6, 9, 17};
+            double[] y = {2, 0, 1, 19, 7} ;
+            for (int i=0; i<x.Length; i++)
+                placeIM("Player4",x[i],y[i]);
             
 
 
@@ -80,7 +83,7 @@ namespace game_interface
             }//for
         }//CreateGrid
 
-        void placeObj( double x, double y, double rows, double cols)
+        void placeObj(Image shipIM, double x, double y, double rows, double cols)
         {
 
 
@@ -94,42 +97,46 @@ namespace game_interface
             width_s = w / cols;
 
             //create the rectangle
-            Rectangle shipIM = new Rectangle();
 
             //set rectangle dimensions
             shipIM.Height = height_s;
             shipIM.Width = width_s;
 
-            //define the looks
-            shipIM.Fill = new SolidColorBrush(Colors.Gold);     //face color
-            shipIM.StrokeThickness = 2;                         //edge thickness
-            shipIM.Stroke = new SolidColorBrush(Colors.Green);  //edge color
+            
 
             //set the position based on coordinates relative to number of pixels
             double Y_pos = height_s * y;                    
             double X_pos = width_s * x;
-            GameGrid.Children.Add(shipIM);
             Canvas.SetBottom(shipIM, Y_pos);
             Canvas.SetLeft(shipIM, X_pos);
            
         }//placeObj
 
 
-        void placeIM() 
+        void placeIM(string player,double x, double y) 
         {   
-            Image myship = new Image();
-            
-            myd;
-            
-            Uri pathToImage = 
 
-            ImageSource imageSource = new BitmapImage(pathToImage);
+            Image Ship = new Image();
 
-            Ship.Source = imageSource;
+           // string ShipKind = "1";
+                
+            
+           // myd;
+            
+            //Uri pathToImage = 
+
+            //ImageSource imageSource = new BitmapImage(pathToImage);
+
+            //Ship.Source = imageSource;
         
-        
-        
-        
+           // BitmapImage logo = new BitmapImage();
+            //logo.BeginInit();
+            Ship.Source = new BitmapImage(new Uri(@"C://Users\\Igor dePaula\\Documents\\GitHub\\codegame\\game\\game\\sprites\\" + player + ".png"));
+            GameGrid.Children.Add(Ship);
+           // logo.EndInit(); // Getting exception here
+            //Ship.Source = logo;
+
+            placeObj(Ship, x, y, 20, 20);
         
         }
 
