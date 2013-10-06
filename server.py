@@ -5,7 +5,7 @@ import queue
 import time
 import pickle
 
-max_game_cmd_len = 25
+max_game_cmd_len = 100
 
 class fileOpcodes():
     instantiate = 1
@@ -423,7 +423,12 @@ if __name__ == '__main__':
                                 print("out of bounds on ship add")
                                 ReturnToPlayer(playerid, (retcode.outofbounds, (grid.game_width, grid.game_height)))
                                 AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.initialize_ship))
-                                continue                           
+                                continue
+                            if ((Player.GetFileID(playerid) == 1 and y > grid.game_height / 2) or (Player.GetFileID(playerid) == 2 and y < grid.game_height / 2)):
+                                print("out of bounds on ship add")
+                                ReturnToPlayer(playerid, (retcode.outofbounds, (grid.game_width, grid.game_height)))
+                                AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.initialize_ship))
+                                continue                                                          
                             if (grid.GetShipCount(playerid) >= max_ships):
                                 print("out of ships")
                                 ReturnToPlayer(playerid, (retcode.toomanyships, max_ships))

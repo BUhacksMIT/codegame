@@ -15,9 +15,10 @@ mycoords = []
 
 offset = 3
 for i in range(gameclient.max_ships):
-    rescode, resval = gameclient.InitializeShip(3+i+offset, 6+i*4+offset)
+    y = random.choice([12, 13, 14, 15, 16])
+    rescode, resval = gameclient.InitializeShip(4+i+offset, y)
     if (rescode == resultcodes.success):
-        mycoords.append((3+i, 6+i*4))
+        mycoords.append((4+i+offset, y))
         myships.append(resval)
         print ("ship success")
     else:
@@ -34,13 +35,13 @@ while (True):
         print("I can't move for another ", str(resval), " ticks!")
     else:
         if (k % 2 == 0):
-            rescode, resval = gameclient.Fire(myships[i], mycoords[i][0]+2, mycoords[i][1]+4)
-            print("fire  ", i, " to ",  mycoords[i][0]+random.choice([-1, 1])*random.randint(1, 5), ",", mycoords[i][1]+random.choice([-1, 1])*random.randint(1, 5), " with result ", rescode, " and value ", resval)
+            rescode, resval = gameclient.Fire(myships[i % len(myships)], mycoords[i % len(mycoords)][0]+2, mycoords[i % len(mycoords)][1]+4)
+            print("fire  ", i, " to ",  mycoords[i % len(mycoords)][0]+random.choice([-1, 1])*random.randint(1, 5), ",", mycoords[i % len(mycoords)][1]+random.choice([-1, 1])*random.randint(1, 5), " with result ", rescode, " and value ", resval)
         else:
-            rescode, resval = gameclient.Move(myships[i], random.randint(1,8))
+            rescode, resval = gameclient.Move(myships[i % len(myships)], random.randint(1,8))
             print("move  ", i, " to right with result ", rescode, " and value ", resval)
     k = k + 1
-    i= (i+ 1) % (gameclient.max_ships-1)
+    i= (i+ 1)
     time.sleep(0.1)
 
 s.close()
