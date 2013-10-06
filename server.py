@@ -166,7 +166,7 @@ class Grid():
     def __init__(self, width, height):
         self.game_width = width
         self.game_height = height
-        self.ships = {(2,1337): Ship(2, 1, 1)}
+        self.ships = {}
         self.playershipcount = {}
         self.grid = [[0 for x in range(self.game_width)] for x in range(self.game_height)]
 
@@ -227,7 +227,7 @@ class Ship():
         print("player ", player, " shipid ", self.shipid)
         self.player = player
         self.health = 100
-        
+
 class Directions():
     up = 1
     up_right = 2
