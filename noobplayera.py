@@ -13,14 +13,16 @@ gameclient.ConnectToGame()
 myships = []
 mycoords = []
 
-for i in range(gameclient.max_ships-1):
-    rescode, resval = gameclient.InitializeShip(5+i, 10+i*4)
+offset = 3
+for i in range(gameclient.max_ships):
+    rescode, resval = gameclient.InitializeShip(5+i-offset, 10+i*4-offset)
     if (rescode == resultcodes.success):
         mycoords.append((5+i, 10+i*4))
         myships.append(resval)
         print ("ship success")
     else:
-        print ("ship fail")
+        print ("ship fail. try again...")
+        offset += 1
 
 k=0
 i=0
