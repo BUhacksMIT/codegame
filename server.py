@@ -291,7 +291,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
 
         # Echo the back to the client
         while (1==1):
-            #try:
+            try:
                 data =  self.request.recv(1024, socket.MSG_PEEK)
                 args = data.decode("UTF-8").split(",")
                 opcode = int(args[0])
@@ -344,11 +344,11 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                         print("to php:", bytex.decode("UTF-8"))
                         self.request.send(bytex)
                         pass
-            #except Exception as err:
-             #   KillPlayer(self.playerid)
-              #  print ("Player with id ", str(self.playerid), " disconnected unexpectedly! + ", err)
-               # return
-                time.sleep(1)
+            except Exception as err:
+                KillPlayer(self.playerid)
+                print ("Player with id ", str(self.playerid), " disconnected unexpectedly! + ", err)
+                return
+            time.sleep(1)
         return
 
     def finish(self):
