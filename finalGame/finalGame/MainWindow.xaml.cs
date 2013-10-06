@@ -63,8 +63,6 @@ namespace game_interface
             //create the grid:    
             createGrid(rows,cols);
             colorArray(rows,cols);
-
-            startGame();
         }//main
 
         void colorArray(int rows, int cols)
@@ -516,12 +514,17 @@ namespace game_interface
         private void Execute_Click(object sender, RoutedEventArgs e)
         {
             //get string from text box and write to file
-
+            startGame();
         }
 
         private void inputConsole_GotFocus(object sender, RoutedEventArgs e)
         {
             inputConsole.Text = "";
+        }
+
+        private void Load_Click(object sender, RoutedEventArgs e)
+        {
+            string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
         }
 
     }//partial class
