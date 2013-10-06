@@ -12,8 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
+using System.IO;
+using System.Timers;
+using System.Windows.Threading;
+using System.Text.RegularExpressions;
 
-namespace game_interface
+namespace TestBenchTimers
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -21,16 +26,80 @@ namespace game_interface
     public partial class MainWindow : Window
     {
         int[][] grid;
-        string[] colors = {"","red","blue","green","yellow","orange" };
+        DispatcherTimer timer;
+        string[] commands;
+        int i;
+        //long systemTime;
+        //Thread t;
 
         public MainWindow()
         {
             InitializeComponent();
-               //CALL this to create the grid:            
-                //createGrid(,);
             colorArray(40, 20);
             startGame();
         }//main
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (i < commands.Length)
+            {
+                if (commands[i][0] == '1')
+                {
+                    //Place a new ship
+                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                    string[] arguments = commands[i].Split(';');
+                    int playerID = Convert.ToInt32(arguments[0]);
+                    int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                    //Call function(playerID,loc)
+                    //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
+                    placeShip(playerID, loc);
+                }
+                else if (commands[i][0] == '2')
+                {
+                    //Move a ship
+                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                    string[] arguments = commands[i].Split(';');
+                    int playerID = Convert.ToInt32(arguments[0]);
+                    int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                    int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
+                    //Call function(playerID,loc,newLoc)
+                    //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
+                    moveShip(playerID, loc, newLoc);
+                }
+                else if (commands[i][0] == '3')
+                {
+                    //Fire at another ship
+                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                    string[] arguments = commands[i].Split(';');
+                    int playerID = Convert.ToInt32(arguments[0]);
+                    int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                    int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
+                    //Call function(playerID,loc,newLoc)
+                    //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
+                    fire(playerID, loc, newLoc);
+
+                }
+                else if (commands[i][0] == '4')
+                {
+                    //Remove a ship from grid
+                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
+                    string[] arguments = commands[i].Split(';');
+                    int playerID = Convert.ToInt32(arguments[0]);
+                    int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
+                    //Call function(playerID,loc)
+                    //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
+                    removeShip(playerID, loc);
+                }
+                else if (commands[i][0] == '5')
+                {
+                    int playerID = Convert.ToInt32(commands[i][2]);
+                    endGame(playerID);
+                    timer.Stop();
+                    return;
+                }
+                i++;
+            }
+        }
 
         void colorArray(int rows, int cols)
         {
@@ -45,39 +114,44 @@ namespace game_interface
                 {
                     grid[i][j] = 0;
                 }
-            } 
+            }
         }
 
         void placeShip(int playerID, int[] loc)
         {
             grid[loc[0]][loc[1]] = playerID;
+            this.debugBox.Text += "Ship placed\r\n";
         }
 
         void moveShip(int playerID, int[] loc, int[] newLoc)
         {
             grid[loc[0]][loc[1]] = 0;
             grid[newLoc[0]][newLoc[1]] = playerID;
+            this.debugBox.Text += "Ship moved\r\n";
             //Implement moving graphic
         }
 
         void fire(int playerID, int[] loc, int[] newLoc)
         {
             //Implement missile graphic
+            this.debugBox.Text += "Missile fired\r\n";
         }
 
-        void placeShip(int playerID, int[] loc)
+        void removeShip(int playerID, int[] loc)
         {
             grid[loc[0]][loc[1]] = 0;
             //Implement blow up graphic
+            this.debugBox.Text += "Ship removed\r\n";
 
         }
 
-        void endGame()
+        void endGame(int playerID)
         {
             //Display the winner
+            this.debugBox.Text += "Game over\r\n";
         }
 
-        void startGame()
+        protected void startGame()
         {
             string log;
             string myPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -85,65 +159,12 @@ namespace game_interface
             {
                 log = File.ReadAllText(myPath + @"\log" + @"\log.txt");
                 string newLine = "\r\n";
-                string[] commands = Regex.Split(log, newLine);
-                for (int i = 0; i < commands[i].Length; i++)
-                {
-                    if (commands[i][0] == '1')
-                    {
-                        //Place a new ship
-                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                        string[] arguments = commands[i].Split(';');
-                        int playerID = Convert.ToInt32(arguments[0]);
-                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
-                        //Call function(playerID,loc)
-                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
-                        self.placeShip(playerID, loc);
-                    }
-                    else if (commands[i][0] == '2')
-                    {
-                        //Move a ship
-                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                        string[] arguments = commands[i].Split(';');
-                        int playerID = Convert.ToInt32(arguments[0]);
-                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
-                        int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
-                        //Call function(playerID,loc,newLoc)
-                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
-                        moveShip(playerID, loc, newLoc);
-                    }
-                    else if (commands[i][0] == '3')
-                    {
-                        //Fire at another ship
-                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                        string[] arguments = commands[i].Split(';');
-                        int playerID = Convert.ToInt32(arguments[0]);
-                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
-                        int[] newLoc = { (int)Char.GetNumericValue(arguments[2][1]), (int)Char.GetNumericValue(arguments[2][4]) };
-                        //Call function(playerID,loc,newLoc)
-                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(newLoc[1]);
-                        fire(playerID, loc, newLoc);
-                    }
-                    else if (commands[i][0] == '4')
-                    {
-                        //Remove a ship from grid
-                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                        string[] arguments = commands[i].Split(';');
-                        int playerID = Convert.ToInt32(arguments[0]);
-                        int[] loc = { (int)Char.GetNumericValue(arguments[1][1]), (int)Char.GetNumericValue(arguments[1][4]) };
-                        //Call function(playerID,loc)
-                        //Console.Write(playerID); Console.Write(loc[0]); Console.WriteLine(loc[1]);
-                        removeShip(playerID, loc);
-                    }
-                    else if (commands[i][0] == '5')
-                    {
-                        commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                        string[] arguments = commands[i].Split(';');
-                        int playerID = Convert.ToInt32(arguments[0]);
-                        endGame(playerID);
-                    }
-                }
+                commands = Regex.Split(log, newLine);
+                timer = new System.Windows.Threading.DispatcherTimer();
+                timer.Tick += new EventHandler(dispatcherTimer_Tick);
+                timer.Interval = new TimeSpan(0, 0, 0, 1);
+                timer.Start();
             }
-
         }
     }//partial class
 }//namespace
