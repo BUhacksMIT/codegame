@@ -99,7 +99,7 @@ def EndGame():
     writer.writeLog(Player.GetFileID(game.GetWinner()),fileOpcodes.endgame)
     return True
 
-max_ships = 8
+max_ships = 4
 max_range = 8
 max_ticks_to_add_ships = 200
 
@@ -384,6 +384,7 @@ class EchoServer(socketserver.TCPServer):
         if (game.started == True):
             request.close()
             return False
+        print("ADD PLAYER");
         players[client_address[1]] = Player()
         game.playercount += 1
         Player.playerfileids[client_address[1]] = game.playercount

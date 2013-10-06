@@ -19,7 +19,7 @@ class Ship {
     }
 }
 
-class resultcodes() {
+class resultcodes {
     const success = 1;
     const hit = 2;
     const fail = -1;
@@ -133,7 +133,7 @@ while ($bytes == '') {
                 $vals = explode(",", str_replace(" ", "", str_replace("]", "", str_replace("[", "", $d[1]))));
                 $d[1] = $vals;
             }
-        } else if ($d[1].substr(0) == "(") {
+        } else if (substr($d[1],0, 1) == "(") {
             $vals = explode(",", str_replace(" ", "", str_replace("(", "", str_replace(")", "", $d[1]))));
             $d[1] = $vals;
         }
@@ -169,6 +169,7 @@ return $num;
     }
 
     function Fire($shipid, $to_x, $to_y) {
+        print ("firing");
         return $this->SendCommand(Opcodes::fire, $shipid, $to_x, $to_y);
     }
 
@@ -199,7 +200,7 @@ return $num;
             sleep(1);
             $rescode = $result[0];
             $resval = $result[1];
-            if ($resval[0] == true) {
+            if ($resval[0] == "True") {
                 $this->board_width = intval($resval[1]);
                 $this->board_height = intval($resval[2]);
                 $this->max_range = intval($resval[3]);
@@ -207,6 +208,8 @@ return $num;
                 $this->game_started = true;
                 print("Game started!");
                 return true;
+            } else {
+                //print("rv:".$resval[0]);
             }
         }
     }

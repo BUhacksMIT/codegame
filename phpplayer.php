@@ -5,73 +5,53 @@ $c = new Client("localhost", 1337);
 $c->ConnectToGame();
 
 for ($i = 0; $i < $c->max_ships; $i++) {
-    $x = rand(0, $c->board_width-1);
-    $y = rand(0, intval(($c->board_height-1)/2);
-    $res = $c->InitializeShip($x, $y);
-    if ($res[0] == resultcodes.success) {
-        print ("added ship to ".$x. ",".$y );
-    } else {
-        print ("error adding ship");
+    $added = false;
+    $offset = 0;
+    while ($added == false) {
+        $x = rand(0, $c->board_width-1)+$offset;
+        $y = rand(0, intval(($c->board_height-1)/2))+$offset;
+        print("init ship at ".$x.",".$y."\r\n");
+        $res = $c->InitializeShip($x, $y);
+        print("init gave".$res[0]." and ".$res[1]."\r\n");
+        if ($res[0] == resultcodes::success) {
+            $myships[] = $res[1];
+            $mycoords[] = array($x, $y);
+            $added = true;
+            print ("added ship to ".$x. ",".$y."\r\n");
+        } else {
+            $added = false;
+            $offset = rand(-3, 3);
+            print ("error adding ship\r\n");
+        }
     }
 }
 
-$status = $res[0];
-$val = $res[1];
-print($res[1]);
-//$res = $c->Fire(5, 5);
-//$status = $res[0];
-//$val = $res[1];
-//print($res[1]);
-$res = $c->GetPlayerCoords();
-print("x:".$res[1][0]->x);
-
+$i = 0;
+$k = 0;
+while (1==1) {
+    print("getting delay\r\n");
+    $ret = $c->GetMyDelay();
+    if ($ret[1] > 0) {
+        print("I can't move for another ".$ret[1]." ticks!\r\n");
+    }
+    print("delay is ".$ret[1]." with code ".$ret[0]."\r\n");
+    if ($k % 2==0) {
+        $fx = ($mycoords[$i % count($mycoords)][0]+rand(-5, 5)) % 20;
+        $fy = ($mycoords[$i % count($mycoords)][1]+rand(-5, 5)) % 20;
+        print("fire  ".$i." to ".$fx.",".$fy);
+        $res = $c->Fire($myships[$i % count($myships)], $fx, $fy);
+        print("fire  ".$i." to ".$fx.",".$fy." with result ".$res[0]." and value ".$res[1]."\r\n");
+        print("\r\nfired\r\n");
+    } else {
+        $sid = $i % count($myships);
+        $res = $c->Move($myships[$sid], 1);
+        print("move  ".$i." to random dir with result ".$res[0]." and value ".$res[1]."\r\n");
+        if ($res[0] == 1) {
+            $mycoords[$sid][1] += 1;
+        }
+    }
+    $k += 1;
+    $i += 1;
+    sleep(0.1);
+}
 ?>
-
-from client import Client
-from client import resultcodes
-from client import Directions
-import random
-import time
-
-random.seed()
-
-gameclient = Client("localhost", 1339)
-
-gameclient.ConnectToGame()
-
-myships = []
-mycoords = []
-
-offset = 3
-for i in range(gameclient.max_ships):
-    y = random.choice([2, 3, 4, 5, 6])
-    rescode, resval = gameclient.InitializeShip(3+i-offset, y)
-    if (rescode == resultcodes.success):
-        mycoords.append((3+i-offset, y))
-        myships.append(resval)
-        print ("ship success")
-    else:
-        print ("ship fail. try again...")
-        offset += 1
-
-k=0
-i=0
-while (True):
-    print("getting delay")
-    rescode, resval = gameclient.GetMyDelay()
-    print("delay is ", resval, " with code ", rescode)
-    if (resval > 0):
-        print("I can't move for another ", str(resval), " ticks!")
-    else:
-        if (k % 2 == 0):
-            rescode, resval = gameclient.Fire(myships[i % len(myships)], mycoords[i % len(mycoords)][0]+2, mycoords[i % len(mycoords)][1]+4)
-            print("fire  ", i, " to ",  mycoords[i % len(mycoords)][0]+random.choice([-1, 1])*random.randint(1, 5), ",", mycoords[i % len(mycoords)][1]+random.choice([-1, 1])*random.randint(1, 5), " with result ", rescode, " and value ", resval)
-        else:
-            rescode, resval = gameclient.Move(myships[i % len(myships)], random.randint(1,8))
-            print("move  ", i, " to right with result ", rescode, " and value ", resval)
-    k = k + 1
-    i= (i+ 1)
-    time.sleep(0.1)
-
-s.close()
-
