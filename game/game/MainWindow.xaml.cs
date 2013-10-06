@@ -31,7 +31,12 @@ namespace game_interface
             
 
             //place image in coordinate x and y
-                Image Payer1Ship = placeIM("Player2",9,9);
+                Image Player1Ship =  placeIM("Player2",9,9);
+
+                deleteImage(Player1Ship);
+
+
+                
 
                 
 
@@ -136,6 +141,16 @@ namespace game_interface
         
         }
 
+        void deleteImage(Image ship)
+        {
+            ship.Source = null;
+        }
+
+        void blowShip(Image ship)
+        { 
+        
+        
+        }
 
         
 
