@@ -4,6 +4,14 @@ import time
 import logging
 import pickle
 
+class fileOpcodes():
+    instantiate = 1
+    move = 2
+    fire = 3
+    kill = 4
+    endgame = 5
+    eliminated = 6
+
 class Opcodes():
     initialize_ship = 1
     get_player_coords = 2
@@ -71,7 +79,7 @@ def GetMyAliveShips():
 def GetGameStatus():
     return pickle.loads(SendCommand(Opcodes.get_game_status))
 
-ip, port = "localhost", 1337
+ip, port = "localhost", 1338
 
 
 logger = logging.getLogger('client')
