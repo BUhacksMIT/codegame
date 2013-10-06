@@ -16,6 +16,7 @@ using System.Timers;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Media;
 
 //FINAL
 namespace game_interface
@@ -59,7 +60,6 @@ namespace game_interface
         {
             InitializeComponent();
             //define the size of the grid
-            
             //create the grid:    
             createGrid(rows,cols);
             colorArray(rows,cols);
@@ -402,12 +402,15 @@ namespace game_interface
             //Implement missile graphic
             //this.debugBox.Text += "Missile fired\r\n";
             animateFire(loc, newLoc);
+            playFire();
+
         }
 
         void removeShip(int playerID, int[] loc)
         {
             explosion(grid[loc[0]][loc[1]]);
             grid[loc[0]][loc[1]] = null;
+            playExplode();
             //Implement blow up graphic
             //this.debugBox.Text += "Ship removed\r\n";
         }
@@ -526,6 +529,28 @@ namespace game_interface
         {
             string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
         }
+
+
+        void playExplode()
+        {
+
+            SoundPlayer explosion = new SoundPlayer(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\log\bomb.wav");
+
+            explosion.Play();
+
+        }
+
+        void playFire()
+        {
+            SoundPlayer explosion = new SoundPlayer(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\log\fire.wav");
+
+            explosion.Play();
+
+        }
+
+
+
+
 
     }//partial class
 }//namespace

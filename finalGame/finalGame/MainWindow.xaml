@@ -14,7 +14,7 @@
                       Enter your input here..." TextWrapping="Wrap" Background="Transparent"  Foreground="LightGray"   Height="472" Canvas.Left="47" Canvas.Top="80" Width="346" FontSize="15" FontFamily="Courier New" FontWeight="Bold" AcceptsReturn="True" AcceptsTab="True" BorderThickness="0" VerticalAlignment="Bottom" GotFocus="inputConsole_GotFocus" VerticalContentAlignment="Bottom"/>
             <Button x:Name="Execute" Content="" Canvas.Left="344" Canvas.Top="683" Width="72" Height="33" Background="Transparent" Click="Execute_Click"/>
             <Button x:Name="Load" Content="LOAD" Canvas.Left="27" Canvas.Top="683" Width="72" Height="33" Background="Blue" FontSize="22" Click="Load_Click"/>
-            <ComboBox x:Name="ChooseCodingLanguage" Canvas.Left="313" Canvas.Top="10" Width="120" SelectedIndex="0" Cursor="Arrow">
+            <ComboBox x:Name="ChooseCodingLanguage" Canvas.Left="302" Canvas.Top="23" Width="120" SelectedIndex="0" Cursor="Arrow">
                 <ComboBoxItem Content="Python" Height="22" Width="200"/>
                 <ComboBoxItem Content="PHP" Height="22" Width="200"/>
             </ComboBox>

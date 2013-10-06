@@ -38,3 +38,16 @@ C:\Users\Luke\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame_
 C:\Users\Luke\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.g.resources
 C:\Users\Luke\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.Properties.Resources.resources
 C:\Users\Luke\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.csproj.GenerateResource.Cache
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\bin\Debug\finalGame.exe.config
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.exe
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.pdb
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\bin\Debug\finalGame.exe
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\bin\Debug\finalGame.pdb
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.csprojResolveAssemblyReference.cache
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\MainWindow.baml
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\MainWindow.g.cs
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\App.g.cs
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame_MarkupCompile.cache
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.g.resources
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.Properties.Resources.resources
+C:\Users\Igor dePaula\Documents\GitHub\codegame\finalGame\finalGame\obj\Debug\finalGame.csproj.GenerateResource.Cache
