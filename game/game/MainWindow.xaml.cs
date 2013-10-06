@@ -28,15 +28,22 @@ namespace game_interface
 
             //create the grid:    
             createGrid(rows,cols);
-           
-            //place an object in it...currently a rectangle(future version will let you pass the actual object)
             
 
             //place image in coordinate x and y
-            double[] x = {1, 5, 6, 9, 17};
-            double[] y = {2, 0, 1, 19, 7} ;
-            for (int i=0; i<x.Length; i++)
-                placeIM("Player4",x[i],y[i]);
+                Image Payer1Ship = placeIM("Player2",9,9);
+
+                
+
+                
+
+               
+
+                
+
+            
+
+            
             
 
 
@@ -113,30 +120,19 @@ namespace game_interface
         }//placeObj
 
 
-        void placeIM(string player,double x, double y) 
+        Image placeIM(string player,double x, double y) 
         {   
 
             Image Ship = new Image();
 
-           // string ShipKind = "1";
-                
+           
             
-           // myd;
-            
-            //Uri pathToImage = 
-
-            //ImageSource imageSource = new BitmapImage(pathToImage);
-
-            //Ship.Source = imageSource;
-        
-           // BitmapImage logo = new BitmapImage();
-            //logo.BeginInit();
             Ship.Source = new BitmapImage(new Uri(@"C://Users\\Igor dePaula\\Documents\\GitHub\\codegame\\game\\game\\sprites\\" + player + ".png"));
             GameGrid.Children.Add(Ship);
-           // logo.EndInit(); // Getting exception here
-            //Ship.Source = logo;
 
             placeObj(Ship, x, y, 20, 20);
+
+            return Ship;
         
         }
 

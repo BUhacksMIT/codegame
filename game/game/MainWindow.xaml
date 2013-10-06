@@ -13,7 +13,7 @@
         </Canvas>
 
         <Canvas x:Name="GameGrid" Height="761" Width="798" Canvas.Left="466">
-            <Image x:Name="Ship"  Height="92" Canvas.Left="227" Canvas.Top="524" Width="92"/>
+            
 
         </Canvas>
 
