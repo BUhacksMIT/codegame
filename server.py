@@ -478,7 +478,7 @@ if __name__ == '__main__':
                         elif (opcode == Opcodes.get_player_coords):
                             ships = []
                             for ship in list(grid.ships.values()):
-                                if (ship.player != playerid):
+                                if (ship.player != playerid and ship.alive == True):
                                     ships.append((ship.player, ship.shipid))
                             pdata = (retcode.shipsuccess, ships)
                             ReturnToPlayer(playerid, pdata)
