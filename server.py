@@ -194,8 +194,13 @@ class Grid():
             oldy = shiptomove.y
             self.grid[newy][newx] = self.grid[oldy][oldx]
             self.grid[oldy][oldx] = 0
+            stu = self.ships[(shiptomove.playerid, shiptomove.shipid)]
+            stu.x = newx
+            stu.y = newy
+            stu.coords = (newx, newy)
             shiptomove.x = newx
             shiptomove.y = newy
+            shiptomove.coords = (newx, newy)
             return retcode.success
         else:
             return retcode.alreadyoccupied
@@ -326,7 +331,6 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                             sl = []
                             for t in rval:
                                 pid, sid = t
-                                print("pid:", pid, "sid:", sid)
                                 #x, y, alive, shipid, player, health
                                 ps = grid.ships[(pid, sid)]
                                 sl.append((ps.x, ps.y, ps.alive, ps.shipid, ps.player, ps.health))
