@@ -5,32 +5,61 @@ import queue
 import time
 import pickle
 
-playerdelays = {}
+players = {}
+
+class Game():
+    def __init__(self):
+        self.started = False
+        self.tc = 0 # tick count
+
+game = Game()
+players_to_start = 2
+
+class Player():
+    def __init__(self):
+        self.delay = 0
+        self.lang = -1
+        self.recvqueue = queue.Queue()
+        self.sendqueue = queue.Queue()
+
+    def AddDelay(self, amt):
+        self.delay += amt
 
 def AddPlayerDelay(playerid, delayamt):
-    playerdelays[playerid] += delayamt
+    players[playerid].AddDelay(delayamt)
+    return True
 
-
+def EndGame():
+    print("Game over")
+    return True
 
 max_ships = 5
 max_range = 5
-tick_count = 0
-max_ticks_to_add_ships = 20
+max_ticks_to_add_ships = 100
 
-def KillPlayer(playerid):
-    del(playerrecvqueues[playerid])
-    del(playersendqueues[playerid])
-    for ship in list(grid.ships.values()):
-        ship.alive = False
-        grid.grid[ship.x][ship.y] = 0
+def StartGame():
+    game.started = True
     return True
 
+def KillPlayer(playerid):
+    if (playerid in players):
+        del(players[playerid])
+        for ship in list(grid.ships.values()):
+            if (ship.player == playerid):
+                ship.alive = False
+                grid.grid[ship.x][ship.y] = 0
+        return True
+    else:
+        return False
+
 def TickClock():
-    for k in playerdelays:
-        if (playerdelays[k] > 0):
-            playerdelays[k] -= 1
-    tick_count += 1
-    if (tick_count > max_ticks_to_add_ships):
+    for p in list(players.values()):
+        if (p.delay > 0):
+            p.delay -= 1
+    if (game.started == False):
+        return False
+    game.tc += 1
+    if (game.tc > max_ticks_to_add_ships):
         shipcount = {}
         for ship in list(grid.ships.values()):
             shipcount[playerid] = shipcount.setdefault(playerid, 0) + 1
@@ -47,20 +76,21 @@ class Opcodes():
     get_delay = 5
     fire = 6
     get_my_alive_ships = 7
+    get_game_status = 8
 
     def GetDelay(opcode): #static method
         if (opcode == Opcodes.initialize_ship):
-            return 10
+            return 2
         elif (opcode == Opcodes.get_player_coords):
-            return 10
+            return 1
         elif (opcode == Opcodes.choose_lang):
             return 0
         elif (opcode == Opcodes.move):
-            return 10
+            return 1
         elif(opcode == Opcodes.get_delay):
             return 0
         elif (opcode == Opcodes.fire):
-            return 20
+            return 3
         elif (opcode == Opcodes.get_my_alive_ships):
             return 0
 
@@ -127,6 +157,7 @@ class Directions():
 class langs():
     Python = 1
     Java = 2
+    NoLang = -1
 
 class retcode():
     success = 1
@@ -149,14 +180,8 @@ class Ship():
         self.health = 100
 
 
-
-
-playersendqueues = {}
-playerrecvqueues = {}
-playerlangs = {}
-
 def ReturnToPlayer(playerid, retval):
-    p = playersendqueues[playerid]
+    p = players[playerid].sendqueue
     p.put(retval)
 
 
@@ -171,7 +196,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
         self.playerid = client_address[1]
-        self.request.settimeout(1.0)
+        request.settimeout(1.0)
         socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -189,22 +214,22 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                 args = data.decode("UTF-8").split(",")
                 opcode = int(args[0])
                 if (opcode != Opcodes.get_delay):
-                    while (playerdelays[self.playerid] > 0):
+                    while (players[self.playerid].delay > 0):
                         pass
                 data = self.request.recv(1024)
                 #self.logger.debug('recv()->"%s"', data)
-                q = playerrecvqueues[self.playerid]
+                q = players[self.playerid].recvqueue
                 q.put((self.playerid, data))
                 time.sleep(1)
-                pqueue = playersendqueues[self.playerid]
+                pqueue = players[self.playerid].sendqueue
                 while (pqueue.empty() == True):
                    pass
                 if (pqueue.empty() == False):
                     (rcode, rval) = pqueue.get()
-                    if (playerlangs[self.playerid] == langs.Python):
+                    if (players[self.playerid].lang == langs.Python):
                         r = pickle.dumps((rcode, rval))
                         self.request.send(r)
-                    elif (playerlangs[self.playerid] == langs.Java):
+                    elif (players[self.playerid].lang == langs.Java):
                         #self.request.send(bytes(str(r), "UTF-8"))
                         pass
             except:
@@ -244,10 +269,11 @@ class EchoServer(socketserver.TCPServer):
 
     def verify_request(self, request, client_address):
         self.logger.debug('verify_request(%s, %s)', request, client_address)
-        playersendqueues[client_address[1]] = queue.Queue()
-        playerrecvqueues[client_address[1]] = queue.Queue()
+        if (game.started == True):
+            request.close()
+            return False
+        players[client_address[1]] = Player()
         grid.playershipcount[client_address[1]] = 0
-        playerdelays[client_address[1]] = 0
         return socketserver.TCPServer.verify_request(self, request, client_address)
 
     def process_request(self, request, client_address):
@@ -291,7 +317,12 @@ if __name__ == '__main__':
     logger.info('Server on %s:%s', ip, port)
 
     while (True):
-        for q in list(playerrecvqueues.values()):
+        if (len(players) >= players_to_start and game.started == False):
+            StartGame()
+        if (len(players) < 2 and game.started == True):
+            EndGame()
+        for q in list(players.values()):
+            q = q.recvqueue
             if (q.empty() == False):
                     print ("got msg")
                     (playerid, msg) = q.get()
@@ -326,7 +357,7 @@ if __name__ == '__main__':
                     elif (opcode == Opcodes.choose_lang):
                         print ("got language of ", str(args[1]), " for player ", str(playerid))
                         langcode = int(args[1])
-                        playerlangs[playerid] = langcode
+                        players[playerid].lang = langcode
                         ReturnToPlayer(playerid, (retcode.success, None))
                         AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.choose_lang))
                     elif (opcode == Opcodes.move):
@@ -358,7 +389,7 @@ if __name__ == '__main__':
                             continue
                     elif (opcode == Opcodes.get_delay):
                         print("sending delay")
-                        ReturnToPlayer(playerid, (retcode.success, playerdelays[playerid]))
+                        ReturnToPlayer(playerid, (retcode.success, players[playerid].delay))
                         AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_delay))
                     elif (opcode == Opcodes.fire):
                         shipid = int(args[1])
@@ -373,12 +404,15 @@ if __name__ == '__main__':
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))                            
                             continue
                     elif (opcode == Opcodes.get_my_alive_ships):
-                            alive = []
-                            for ship in list(grid.ships.values()):
-                                if (ship.alive == True and ship.player == playerid):
-                                    alive.append(ship.shipid)
-                            ReturnToPlayer(playerid, (retcode.success, alive))
-                            AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_my_alive_ships)) 
+                        alive = []
+                        for ship in list(grid.ships.values()):
+                            if (ship.alive == True and ship.player == playerid):
+                                alive.append(ship.shipid)
+                        ReturnToPlayer(playerid, (retcode.success, alive))
+                        AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_my_alive_ships)) 
+                    elif (opcode == Opcodes.get_game_status):
+                        ReturnToPlayer(playerid, (retcode.success, game.started))
+                        #no delay, ever
                     else:
                         print("invalid opcode", str(opcode))
                         pass

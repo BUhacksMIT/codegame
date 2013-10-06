@@ -12,6 +12,7 @@ class Opcodes():
     get_delay = 5
     fire = 6
     get_my_alive_ships = 7
+    get_game_status = 8
 
 class langs():
     Python = 1
@@ -67,7 +68,10 @@ def Fire(shipid, to_x, to_y):
 def GetMyAliveShips():
     return pickle.loads(SendCommand(Opcodes.get_my_alive_ships))
 
-ip, port = "localhost", 1338
+def GetGameStatus():
+    return pickle.loads(SendCommand(Opcodes.get_game_status))
+
+ip, port = "localhost", 1337
 
 
 logger = logging.getLogger('client')
@@ -84,6 +88,12 @@ message = 'Hello, world yo 4'
 logger.debug('sending data: "%s"', message)
 
 SendCommand(Opcodes.choose_lang, langs.Python) # 1 is for Python
+game_started = False
+while (game_started == False):
+    rescode, resval = GetGameStatus()
+    if (resval == True):
+        game_started = True
+        print("Game started!")
 rescode, resval = Initialize_Ship(5, 5)
 print(rescode)
 print(resval)
