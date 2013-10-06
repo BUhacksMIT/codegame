@@ -60,48 +60,49 @@ class Client():
         self.port = port
         self.game_started = False
 
-    def _SendCommand(opcode, *args):
+    def _SendCommand(self, opcode, *args):
         message = str(opcode) + ","
         for arg in args:
             message += str(arg) + ","
         print("sending command: " + message)
-        s.send(bytes(str(message), "UTF-8"))
+        self.s.send(bytes(str(message), "UTF-8"))
         response = self.s.recv(4096)
         print(response)
         return response
 
-    def InitializeShip(x, y):
+    def InitializeShip(self, x, y):
         print("init ship")
         return pickle.loads(self._SendCommand(Opcodes.initialize_ship, x, y))
 
-    def GetPlayerCoords():
+    def GetPlayerCoords(self):
         response = self._SendCommand(Opcodes.get_player_coords)
         print("res:",response)
         response = pickle.loads(response)
         print("res2",response)
         return response
 
-    def Move(shipid, direction):
+    def Move(self, shipid, direction):
         return pickle.loads(self._SendCommand(Opcodes.move, shipid, direction))
 
-    def GetMyDelay():
+    def GetMyDelay(self):
         return pickle.loads(self._SendCommand(Opcodes.get_delay))
 
-    def Fire(shipid, to_x, to_y):
+    def Fire(self, shipid, to_x, to_y):
         return pickle.loads(self._SendCommand(Opcodes.fire, shipid, to_x, to_y))
 
-    def GetMyAliveShips():
+    def GetMyAliveShips(self):
         return pickle.loads(self._SendCommand(Opcodes.get_my_alive_ships))
 
-    def _GetGameStatus():
+    def _GetGameStatus(self):
         return pickle.loads(self._SendCommand(Opcodes.get_game_status))
 
-    def ConnectToGame(host, port):
+    def ConnectToGame(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.ip, self.port))
         self._SendCommand(Opcodes.choose_lang, langs.Python)
         while (self.game_started == False):
             rescode, resval = self._GetGameStatus()
+            print("res:",resval[0])
             if (resval[0] == True):
                 self.board_width = int(resval[1])
                 self.board_height = int(resval[2])
