@@ -19,6 +19,17 @@ class Ship {
     }
 }
 
+class resultcodes() {
+    const success = 1;
+    const hit = 2;
+    const fail = -1;
+    const toomanyships = -2;
+    const alreadyoccupied = -3;
+    const outofbounds = -4;
+    const outofrange = -5;
+    const miss = -6;
+}
+
 class Opcodes
 {
     const initialize_ship = 1;

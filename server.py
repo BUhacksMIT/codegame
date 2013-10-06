@@ -534,6 +534,10 @@ if __name__ == '__main__':
                             to_y = int(args[3])
                             playership = grid.GetShipById(playerid, shipid)
                             print("fire entered")
+                            if (playership.alive == False):
+                                ReturnToPlayer(playerid, (rescode.fail, None))
+                                AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))
+                                continue
                             if (abs(to_x - playership.x) < max_range and abs(to_y-playership.y) < max_range):
                                 print("case 1")
                                 writer.writeLog(Player.GetFileID(playerid),fileOpcodes.fire,(playership.x,playership.y),newLoc = (to_x,to_y))
