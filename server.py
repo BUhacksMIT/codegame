@@ -99,8 +99,8 @@ def EndGame():
     writer.writeLog(Player.GetFileID(game.GetWinner()),fileOpcodes.endgame)
     return True
 
-max_ships = 5
-max_range = 5
+max_ships = 8
+max_range = 8
 max_ticks_to_add_ships = 200
 
 def StartGame():
@@ -474,10 +474,10 @@ if __name__ == '__main__':
                             print("init ship exited")
                         elif (opcode == Opcodes.get_player_coords):
                             ships = []
-                            for ship in grid.ships:
-                                if ship.player != playerid:
-                                    ships.append((ship.player, ship.shipid))
-                            pdata = (retcode.shipsuccess, ships)
+                            for ship in list(grid.ships.values()):
+                                if (ship.player != playerid):
+                                    ships.append(ship)
+                            pdata = (retcode.success, ships)
                             ReturnToPlayer(playerid, pdata)
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_player_coords))
                         elif (opcode == Opcodes.choose_lang):
@@ -519,6 +519,7 @@ if __name__ == '__main__':
                         elif (opcode == Opcodes.get_delay):
                             print("sending delay")
                             ReturnToPlayer(playerid, (retcode.success, players[playerid].delay))
+                            print("delay sent")
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_delay))
                         elif (opcode == Opcodes.fire):
                             shipid = int(args[1])
