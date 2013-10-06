@@ -25,3 +25,6 @@ class fileWriter:
         elif opCode == opCodes.kill:
             # "playerID opCode (x,y)" where (x,y) is a location on the grid
             print(opCodes.kill,playerID,loc,file = self.logFile,end="\r\n",sep=";")
+		#end the game, playerID wins
+		elif opCode = opCodes.endgame:
+			print(opCodes.endgame,playerID)
