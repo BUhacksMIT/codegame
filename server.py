@@ -194,7 +194,7 @@ class Grid():
             oldy = shiptomove.y
             self.grid[newy][newx] = self.grid[oldy][oldx]
             self.grid[oldy][oldx] = 0
-            stu = self.ships[(shiptomove.playerid, shiptomove.shipid)]
+            stu = self.ships[(shiptomove.player, shiptomove.shipid)]
             stu.x = newx
             stu.y = newy
             stu.coords = (newx, newy)
@@ -307,7 +307,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                 #self.logger.debug('recv()->"%s"', data)
                 q = players[self.playerid].recvqueue
                 q.put((self.playerid, data))
-                time.sleep(1)
+                #time.sleep(1)
                 pqueue = players[self.playerid].sendqueue
                 while (pqueue.empty() == True):
                     time.sleep(0.1)
