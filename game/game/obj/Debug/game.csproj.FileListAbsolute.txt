@@ -1,0 +1,16 @@
+C:\Users\Igor dePaula\Desktop\game\game\bin\Debug\game.exe.config
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.csprojResolveAssemblyReference.cache
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\App.g.cs
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game_MarkupCompile.cache
+C:\Users\Igor dePaula\Desktop\game\game\bin\Debug\game.exe
+C:\Users\Igor dePaula\Desktop\game\game\bin\Debug\game.pdb
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\MainWindow.baml
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\MainWindow.g.cs
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.g.resources
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.Properties.Resources.resources
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.csproj.GenerateResource.Cache
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.exe
+C:\Users\Igor dePaula\Desktop\game\game\obj\Debug\game.pdb
+C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\bin\Debug\game.exe.config
+C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game.exe
+C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game.pdb
