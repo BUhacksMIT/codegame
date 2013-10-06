@@ -33,7 +33,8 @@ class Opcodes():
 
 class langs():
     Python = 1
-    Java = 2
+    PHP = 2
+    NoLang = -1
 
 class Directions():
     up = 1

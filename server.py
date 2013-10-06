@@ -4,7 +4,7 @@ import socketserver
 import queue
 import time
 import pickle
-
+import struct
 max_game_cmd_len = 100
 
 class fileOpcodes():
@@ -229,7 +229,7 @@ class Directions():
 
 class langs():
     Python = 1
-    Java = 2
+    PHP = 2
     NoLang = -1
 
 class retcode():
@@ -241,6 +241,7 @@ class retcode():
     outofbounds = -4
     outofrange = -5
     miss = -6
+    shipsuccess = 3
 
 class Ship():
     def __init__(self, player, x, y):
@@ -271,7 +272,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
         self.logger = logging.getLogger('EchoRequestHandler')
         self.logger.debug('__init__')
         self.playerid = client_address[1]
-        request.settimeout(1.0)
+        request.settimeout(3.0)
         socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -284,7 +285,7 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
 
         # Echo the back to the client
         while (1==1):
-            try:
+            #try:
                 data =  self.request.recv(1024, socket.MSG_PEEK)
                 args = data.decode("UTF-8").split(",")
                 opcode = int(args[0])
@@ -308,16 +309,39 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                 if (pqueue.empty() == False):
                     (rcode, rval) = pqueue.get()
                     if (players[self.playerid].lang == langs.Python):
+                        if (rcode == rescode.shipsuccess):
+                            rcode = rescode.success
+                            sl = []
+                            for t in rval:
+                                pid, sid = t
+                                sl.append(grid.ships[(pid, sid)])
+                            rval = sl
                         r = pickle.dumps((rcode, rval))
                         self.request.send(r)
-                    elif (players[self.playerid].lang == langs.Java):
-                        #self.request.send(bytes(str(r), "UTF-8"))
+                    elif (players[self.playerid].lang == langs.PHP):
+                        if (rcode == rescode.shipsuccess):
+                            rcode = rescode.success
+                            sl = []
+                            for t in rval:
+                                pid, sid = t
+                                #x, y, alive, shipid, player, health
+                                ps = grid.ships[(pid, sid)]
+                                sl.append((ps.x, ps.y, ps.alive, ps.shipid, ps.player, ps.health))
+                            rval = sl
+                        resp = str(rcode) + ";" + str(rval)
+   
+                        bytex = bytes(resp, "UTF-8")
+                        print(struct.pack("!i", len(bytex)))
+                        bytex = struct.pack("!i", len(bytex))+bytex
+
+                        print("to php:", bytex.decode("UTF-8"))
+                        self.request.send(bytex)
                         pass
-            except:
-                KillPlayer(self.playerid)
-                print ("Player with id ", str(self.playerid), " disconnected unexpectedly!")
-                return
-            time.sleep(1)
+            #except Exception as err:
+             #   KillPlayer(self.playerid)
+              #  print ("Player with id ", str(self.playerid), " disconnected unexpectedly! + ", err)
+               # return
+                time.sleep(1)
         return
 
     def finish(self):
@@ -452,8 +476,8 @@ if __name__ == '__main__':
                             ships = []
                             for ship in grid.ships:
                                 if ship.player != playerid:
-                                    ships.append(ship)
-                            pdata = (retcode.success, ships)
+                                    ships.append((ship.player, ship.shipid))
+                            pdata = (retcode.shipsuccess, ships)
                             ReturnToPlayer(playerid, pdata)
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_player_coords))
                         elif (opcode == Opcodes.choose_lang):
