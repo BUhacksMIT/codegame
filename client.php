@@ -94,23 +94,27 @@ while ($bytes == '') {
         return $bytes;*/
      //   while (!feof($fp)) {
         $h =fgets($this->s, 5);
-        print("h:".$h);
+        //print("h:".$h);
         $h = $this->bytesToInt($h);
         $d = fgets($this->s, $h+1);
-        print("returning ".$d);
+        //print("returning ".$d);
         $d = explode(";", $d, 2);
-        if ($d[1].substr(0) == "[") {
-            if ($d[1].substr(1) == "(") {
-                $vals = str_replace(" ", "", explode(",", str_replace("]", "", str_replace("[", "", $d[1]))));
+        //print("\r\nd1:".$d[1].":".$d[1].substr(1,1).":".$d[1].substr(1,1)."\r\n");
+        if (substr($d[1], 0, 1) == "[") {
+            if (substr($d[1], 1, 1) == "(") {
+                print ("special print");
+                $vals = str_replace(" ", "", explode("),", str_replace("]", "", str_replace("[", "", $d[1]))));
                 foreach ($vals as $s) {
-                    $subvals = explode(",", str_replace(" ", "", str_replace("(", "", str_replace(")", "", $d[1]))));
+                    $subvals = explode(",", str_replace(" ", "", str_replace("(", "", str_replace(")", "", $s))));
                     $x = intval($subvals[0]);
+                    print("got x = ".$x);
                     $y = intval($subvals[1]);
                     $alive = $subvals[2] == "True" ? true : false;
                     $shipid= intval($subvals[3]);
                     $player = intval($subvals[4]);
                     $health = intval($subvals[5]);
                     $so = new Ship($x, $y, $alive, $shipid, $player, $health);
+                    print("so:".$so);
                     $sos[] = $so;
                 }
                 $d[1] = $sos;
@@ -208,8 +212,10 @@ $res = $c->InitializeShip(5, 5);
 $status = $res[0];
 $val = $res[1];
 print($res[1]);
-$res = $c->Fire(5, 5);
-$status = $res[0];
-$val = $res[1];
-print($res[1]);
+//$res = $c->Fire(5, 5);
+//$status = $res[0];
+//$val = $res[1];
+//print($res[1]);
+$res = $c->GetPlayerCoords();
+print("x:".$res[1][0]->x);
 ?>

@@ -162,11 +162,12 @@ class Opcodes():
             return 0
         elif (opcode == Opcodes.get_game_status):
             return 0
+
 class Grid():
     def __init__(self, width, height):
         self.game_width = width
         self.game_height = height
-        self.ships = {(2,1337): Ship(2, 1, 1)}
+        self.ships = {}
         self.playershipcount = {}
         self.grid = [[0 for x in range(self.game_width)] for x in range(self.game_height)]
 
@@ -216,18 +217,6 @@ class Grid():
 
 grid = Grid(20, 20)
 
-class Ship():
-    def __init__(self, player, x, y):
-        self.coords = (x, y)
-        self.x = x
-        self.y = y
-        self.alive = True
-        self.shipid = grid.GetShipCount(player) + 1
-        grid.playershipcount[player] += 1
-        print("player ", player, " shipid ", self.shipid)
-        self.player = player
-        self.health = 100
-        
 class Directions():
     up = 1
     up_right = 2
@@ -254,7 +243,17 @@ class retcode():
     miss = -6
     shipsuccess = 3
 
-
+class Ship():
+    def __init__(self, player, x, y):
+        self.coords = (x, y)
+        self.x = x
+        self.y = y
+        self.alive = True
+        self.shipid = grid.GetShipCount(player) + 1
+        grid.playershipcount[player] += 1
+        print("player ", player, " shipid ", self.shipid)
+        self.player = player
+        self.health = 100
 
 
 def ReturnToPlayer(playerid, retval):
@@ -310,8 +309,8 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                 if (pqueue.empty() == False):
                     (rcode, rval) = pqueue.get()
                     if (players[self.playerid].lang == langs.Python):
-                        if (rcode == retcode.shipsuccess):
-                            rcode = retcode.success
+                        if (rcode == rescode.shipsuccess):
+                            rcode = rescode.success
                             sl = []
                             for t in rval:
                                 pid, sid = t
@@ -320,13 +319,11 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
                         r = pickle.dumps((rcode, rval))
                         self.request.send(r)
                     elif (players[self.playerid].lang == langs.PHP):
-                        if (rcode == retcode.shipsuccess):
-                            print("special fun", str(rval))
-                            rcode = retcode.success
+                        if (rcode == rescode.shipsuccess):
+                            rcode = rescode.success
                             sl = []
                             for t in rval:
                                 pid, sid = t
-                                print("pid:", pid, "sid:", sid)
                                 #x, y, alive, shipid, player, health
                                 ps = grid.ships[(pid, sid)]
                                 sl.append((ps.x, ps.y, ps.alive, ps.shipid, ps.player, ps.health))
@@ -479,8 +476,8 @@ if __name__ == '__main__':
                             ships = []
                             for ship in list(grid.ships.values()):
                                 if (ship.player != playerid):
-                                    ships.append((ship.player, ship.shipid))
-                            pdata = (retcode.shipsuccess, ships)
+                                    ships.append(ship)
+                            pdata = (retcode.success, ships)
                             ReturnToPlayer(playerid, pdata)
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_player_coords))
                         elif (opcode == Opcodes.choose_lang):
