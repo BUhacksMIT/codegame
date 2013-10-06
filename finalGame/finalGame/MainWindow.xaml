@@ -3,16 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="800" Width="1280" ResizeMode="CanMinimize">
 
-    <Canvas x:Name="BigCanvas" Margin="0,0,0,0">
+    <Canvas x:Name="BigCanvas" Background="Black" Margin="0,0,0,0">
 
 
 
-        <Canvas x:Name="console" Height="771" Width="466">
-            <TextBox  x:Name="inputConsole" Canvas.Bottom="0" Canvas.Right="0" Text="Enter your input Here..." Height="771" Canvas.Left="0" Canvas.Top="0" Width="466" FontSize="15" FontFamily="Courier New" FontWeight="Bold" AcceptsReturn="True" AcceptsTab="True"/>
+        <Canvas x:Name="console" Height="771" Width="466" Background="Black">
+            <Image Height="100" Canvas.Left="183" Canvas.Top="184" Width="100"/>
+            <Image Height="771" Source="console2.png" Stretch="Fill" Width="433"/>
+            <TextBox  x:Name="inputConsole" Canvas.Bottom="0" Canvas.Right="0" CaretBrush="LightGray"  Text="Welcome to Console Wars!
+                      Enter your input here..." TextWrapping="Wrap" Background="Transparent"  Foreground="LightGray"   Height="472" Canvas.Left="47" Canvas.Top="80" Width="346" FontSize="15" FontFamily="Courier New" FontWeight="Bold" AcceptsReturn="True" AcceptsTab="True" BorderThickness="0" VerticalAlignment="Bottom" GotFocus="inputConsole_GotFocus" VerticalContentAlignment="Bottom"/>
+            <Button x:Name="Execute" Content="" Canvas.Left="344" Canvas.Top="683" Width="72" Height="33" Background="Transparent" Click="Execute_Click"/>
 
         </Canvas>
 
-        <Canvas x:Name="GameGrid" Height="761" Width="798" Canvas.Left="466">
+        <Canvas x:Name="GameGrid" Height="761" Width="798" Canvas.Left="444">
             
 
         </Canvas>

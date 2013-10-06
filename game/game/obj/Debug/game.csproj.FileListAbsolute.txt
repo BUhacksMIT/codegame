@@ -24,3 +24,6 @@ C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game_MarkupC
 C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game.g.resources
 C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game.Properties.Resources.resources
 C:\Users\Igor dePaula\Documents\GitHub\codegame\game\game\obj\Debug\game.csproj.GenerateResource.Cache
+C:\Users\Yaz\Documents\GitHub\codegame\game\game\bin\Debug\game.exe.config
+C:\Users\Yaz\Documents\GitHub\codegame\game\game\obj\Debug\game.exe
+C:\Users\Yaz\Documents\GitHub\codegame\game\game\obj\Debug\game.pdb

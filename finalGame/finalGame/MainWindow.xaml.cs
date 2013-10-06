@@ -512,6 +512,18 @@ namespace game_interface
             exploTimer.Start();
         }
 
+
+        private void Execute_Click(object sender, RoutedEventArgs e)
+        {
+            //get string from text box and write to file
+
+        }
+
+        private void inputConsole_GotFocus(object sender, RoutedEventArgs e)
+        {
+            inputConsole.Text = "";
+        }
+
     }//partial class
 }//namespace
 
