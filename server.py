@@ -484,7 +484,7 @@ if __name__ == '__main__':
                             ReturnToPlayer(playerid, (retcode.success, alive))
                             AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_my_alive_ships)) 
                         elif (opcode == Opcodes.get_game_status):
-                            ReturnToPlayer(playerid, (retcode.success, game.started))
+                            ReturnToPlayer(playerid, (retcode.success, (game.started, game_width, game_height, max_range, max_ships)))
                             #no delay, ever
                         else:
                             print("invalid opcode", str(opcode))
