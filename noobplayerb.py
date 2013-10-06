@@ -8,7 +8,7 @@ import math
 
 random.seed()
 
-gameclient = Client("localhost", 1337)
+gameclient = Client("localhost", 1339)
 
 gameclient.ConnectToGame()
 
@@ -18,7 +18,7 @@ for i in range(gameclient.max_ships):
 	y = random.choice([15,16,17,18,19])
 	rescode, resval = gameclient.InitializeShip(i*2,y)
 	if (rescode == resultcodes.success):
-		mycoords[resval] = (i*2,y)
+		mycoords[resval] = [i*2,y]
 		print("Ship successfully created")
 k = 0
 i = 0	
@@ -31,6 +31,8 @@ while (True):
 		for id in mycoords:
 			if id not in resval:
 				del mycoords[id]
+		for id in mycoords:
+			print("HERE",mycoords[id])
 	else:
 		if (k % 2 == 0):
 			rescode, opShips = gameclient.GetPlayerCoords()
@@ -45,14 +47,16 @@ while (True):
 					if dist < minDistance and ship.alive:
 						minDistance = dist
 						shipID = id
-						fireX = ship.coords[0]
-						fireY = ship.coords[1]
-			print("MinDistance",minDistance,fireX,fireY)
+						fireX = ship.x
+						fireY = ship.y
+			print("MinDistance",minDistance,fireX,fireY,shipID)
 			if minDistance < 8:
 				rescode, resval = gameclient.Fire(shipID,fireX,fireY)
 				#print("Fire to {0}, {1}",String.Format(fireX,fireY)
 			else:
 				rescode, resval = gameclient.Move(shipID,5)
+				if rescode == resultcodes.success:
+					mycoords[shipID][1] -= 1
 		k = k + 1
 	time.sleep(0.1)
 					

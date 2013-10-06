@@ -424,6 +424,7 @@ namespace game_interface
 
         void eliminate(int playerID)
         {
+            playExplode();
             //Eliminate a loser, bad coder
             for (int i = 0; i < grid.Length; i++)
             {

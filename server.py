@@ -99,7 +99,7 @@ def EndGame():
     writer.writeLog(Player.GetFileID(game.GetWinner()),fileOpcodes.endgame)
     return True
 
-max_ships = 8
+max_ships = 4
 max_range = 8
 max_ticks_to_add_ships = 200
 
