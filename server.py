@@ -535,7 +535,7 @@ if __name__ == '__main__':
                             playership = grid.GetShipById(playerid, shipid)
                             print("fire entered")
                             if (playership.alive == False):
-                                ReturnToPlayer(playerid, (rescode.fail, None))
+                                ReturnToPlayer(playerid, (retcode.fail, None))
                                 AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))
                                 continue
                             if (abs(to_x - playership.x) < max_range and abs(to_y-playership.y) < max_range):
