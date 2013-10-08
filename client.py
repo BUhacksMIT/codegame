@@ -62,9 +62,9 @@ class Client():
         self.game_started = False
 
     def _SendCommand(self, opcode, *args):
-        message = str(opcode) + ","
+        message = str(opcode) + ";"
         for arg in args:
-            message += str(arg) + ","
+            message += str(arg) + ";"
         print("sending command: " + message)
         self.s.send(bytes(str(message), "UTF-8"))
         response = self.s.recv(4096)

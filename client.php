@@ -65,9 +65,9 @@ class Client {
         $args = func_get_args();
         $n = func_num_args();
         $opcode = intval($args[0]);
-        $message = $opcode.",";
+        $message = $opcode.";";
         for ($i=1; $i<$n; $i++) {
-            $message .= $args[$i].",";
+            $message .= $args[$i].";";
         }
         //die("value of opcode is ".$message);
       //  socket_write($this->s, $message, strlen($message));
