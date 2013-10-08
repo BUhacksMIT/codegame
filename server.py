@@ -6,6 +6,7 @@ import time
 import pickle
 import struct
 import random
+import math
 max_game_cmd_len = 100
 
 class fileOpcodes():
@@ -155,7 +156,7 @@ class Opcodes():
         if (opcode == Opcodes.initialize_ship):
             return 5
         elif (opcode == Opcodes.get_player_coords):
-            return 5
+            return 0
         elif (opcode == Opcodes.choose_lang):
             return 0
         elif (opcode == Opcodes.move):
@@ -524,6 +525,8 @@ if __name__ == '__main__':
                                 pdata = (retcode.shipsuccess, ships)
                                 ReturnToPlayer(playerid, pdata)
                                 AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_player_coords))
+                                loopdone = False
+                                time.sleep(0.1)
                             elif (opcode == Opcodes.choose_lang):
                                 print ("got language of ", str(args[1]), " for player ", str(playerid))
                                 langcode = int(args[1])
@@ -567,7 +570,7 @@ if __name__ == '__main__':
                                 AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_delay))
                                 if (players[playerid].delay < 1):
                                     loopdone = False
-                                    time.sleep(0.3)
+                                    time.sleep(0.1)
                             elif (opcode == Opcodes.fire):
                                 shipid = int(args[1])
                                 to_x = int(args[2])
@@ -578,7 +581,7 @@ if __name__ == '__main__':
                                     ReturnToPlayer(playerid, (retcode.shipdead, None))
                                     AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.fire))
                                     continue
-                                if (abs(to_x - playership.x) < max_range and abs(to_y-playership.y) < max_range):
+                                if (math.sqrt(abs(to_x - playership.x)**2 + abs(to_y - playership.y)**2) < max_range):
                                     print("case 1")
                                     writer.writeLog(Player.GetFileID(playerid),fileOpcodes.fire,(playership.x,playership.y),newLoc = (to_x,to_y))
                                     print("case 1 again ", to_x, " ", to_y, " ", shipid)
@@ -598,7 +601,7 @@ if __name__ == '__main__':
                                 AddPlayerDelay(playerid, Opcodes.GetDelay(Opcodes.get_my_alive_ships))
                                 loopdone = False
                                 print("alive ships returned, giving another shot...")
-                                time.sleep(0.3)
+                                time.sleep(0.1)
                             elif (opcode == Opcodes.get_game_status):
                                 print("got game status request")
                                 ReturnToPlayer(playerid, (retcode.success, (game.started, grid.game_width, grid.game_height, max_range, max_ships)))

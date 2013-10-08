@@ -42,10 +42,10 @@ while (True):
 			del mycoords[a]
 		for id in mycoords:
 			print("HERE",mycoords[id])
-		if (k % 2 == 0):
-			rescode, opShips = gameclient.GetPlayerCoords()
-			for ship in opShips:
-				print(ship.coords)
+		#if (k % 2 == 0):
+		rescode, opShips = gameclient.GetPlayerCoords()
+		for ship in opShips:
+			print(ship.coords)
 		else:
 			#find closest ship
 			minDistance = 40
@@ -57,6 +57,8 @@ while (True):
 						shipID = id
 						fireX = ship.x
 						fireY = ship.y
+					elif dist < minDistance:
+						print("dist not alive:", str(dist))
 			print("MinDistance",minDistance,fireX,fireY,shipID)
 			if minDistance < 8:
 				rescode, resval = gameclient.Fire(shipID,fireX,fireY)
