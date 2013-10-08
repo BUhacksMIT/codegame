@@ -1,7 +1,7 @@
 <?PHP
 require("client.php");
 
-$c = new Client("localhost", 1337);
+$c = new Client("169.254.115.63", 1337);
 $c->ConnectToGame();
 
 for ($i = 0; $i < $c->max_ships; $i++) {
