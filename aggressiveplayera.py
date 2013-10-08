@@ -8,7 +8,7 @@ import math
 
 random.seed()
 
-gameclient = Client("localhost", 1339)
+gameclient = Client("localhost", 1337)
 
 gameclient.ConnectToGame()
 
@@ -16,7 +16,7 @@ mycoords = {}
 
 offset = [0, 0]
 for i in range(gameclient.max_ships):
-	y = random.choice(range(11, 19)) + offset[1]
+	y = random.choice(range(1, 7)) + offset[1]
 	x = i*2+random.randint(1,5)+ offset[0]
 	rescode, resval = gameclient.InitializeShip(x,y)
 	if (rescode == resultcodes.success):
@@ -57,13 +57,10 @@ while (True):
 						shipID = id
 						fireX = ship.x
 						fireY = ship.y
-					elif dist < minDistance:
-						print("dist not alive:", str(dist))
 			print("MinDistance",minDistance,fireX,fireY,shipID)
 			if minDistance < 8:
 				rescode, resval = gameclient.Fire(shipID,fireX,fireY)
-				print ("firing with ship ", str(shipID), " to ", str(fireX), " , ", str(fireY))
-				print("fire got rescode ", str(rescode))
+				print ("firing with ship ", str(shipID))
 				#print("Fire to {0}, {1}",String.Format(fireX,fireY)
 			else:
 				mdir = 1
@@ -84,11 +81,27 @@ while (True):
 					mdir = Directions.up_left
 				elif (myship[0] > fireX and myship[1] > fireY):
 					mdir = Directions.down_left
-				rescode, resval = gameclient.Move(shipID,mdir)
-				if rescode == resultcodes.success:
-					mycoords[shipID][1] = resval[1]
-					mycoords[shipID][0] = resval[0]
-		k = k + 1
+				shipids = [shipID]
+				movedirs = [mdir]
+				ri = random.choice(list(mycoords.keys()))
+				rc = mycoords[ri]
+				if ri != shipID:
+					shipids.append(ri)
+					movedirs.append(1)
+				rescode, retlist = gameclient.Move(','.join(map(str, shipids)),','.join(map(str, movedirs)))
+				if (type(retlist) == list):
+					for r in retlist:
+						(nx, ny, sid, ret) = r
+						if ret == resultcodes.success:
+							mycoords[sid][1] = ny
+							mycoords[sid][0] = nx
+				else:
+					(nx, ny, sid, ret) = retlist
+					if ret == resultcodes.success:
+						mycoords[sid][1] = ny
+						mycoords[sid][0] = nx
+	k = k + 1
 	time.sleep(0.1)
 					
 s.close()
+

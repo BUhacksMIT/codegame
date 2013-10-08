@@ -1,7 +1,7 @@
 <?PHP
 require("client.php");
 
-$c = new Client("localhost", 1337);
+$c = new Client("localhost", 1339);
 $c->ConnectToGame();
 
 for ($i = 0; $i < $c->max_ships; $i++) {
@@ -9,7 +9,7 @@ for ($i = 0; $i < $c->max_ships; $i++) {
     $offset = 0;
     while ($added == false) {
         $x = rand(0, $c->board_width-1)+$offset;
-        $y = rand(0, intval(($c->board_height-1)/2))+$offset;
+        $y = rand(0, intval(($c->board_height-1)/2)+10)+$offset;
         print("init ship at ".$x.",".$y."\r\n");
         $res = $c->InitializeShip($x, $y);
         print("init gave".$res[0]." and ".$res[1]."\r\n");
