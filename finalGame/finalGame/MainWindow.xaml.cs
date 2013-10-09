@@ -17,14 +17,10 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Media;
-using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System;
 using System.Collections;
-using System.IO;
-using System.Media;
 using System.Security.Permissions;
 using System.Diagnostics;
 
@@ -619,28 +615,29 @@ public  void StartClient() {
             {
                 string myPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\log";
                 string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
-                string codestart = "from client import Client\r\nfrom client import resultcodes\r\nfrom client import Directions\r\nfrom client import Ship\r\nimport random\r\nimport time\r\nimport math\r\nrandom.seed()\r\ngameclient = Client(\"" + Host.Text + "\"," + Port.Text + ")\r\n";
                 if (language == "0")
                 {
+                    string codestart = "from client import Client\r\nfrom client import resultcodes\r\nfrom client import Directions\r\nfrom client import Ship\r\nimport random\r\nimport time\r\nimport math\r\nrandom.seed()\r\ngameclient = Client(\"" + Host.Text + "\"," + Port.Text + ")\r\n";
                     string code = inputConsole.Text;
                     System.IO.File.WriteAllText(myPath + @"\me.py", codestart + code + "\r\ns.close()");
                     Process start = new Process();
                     start.StartInfo.FileName = @"C:\Python33\python.exe";
                     start.StartInfo.Arguments = myPath + @"\me.py";
                     start.StartInfo.UseShellExecute = true;
-                    //start.StartInfo.RedirectStandardOutput = true;
                     start.Start();
                     start.WaitForExit();
-
-                    /*using (Process process = Process.Start(start))
-                    {
-                        using (StreamReader reader = process.StandardOutput)
-                        {
-                            string result = reader.ReadToEnd();
-                            MessageBox.Show(result);
-                        }
-                    }*/
-
+                }
+                else if (language == "1")
+                {
+                    string codestart = "<?PHP\r\nrequire(\"client.php\");\r\n$c = new Client(\"localhost\", 1339);\r\n";
+                    string code = inputConsole.Text;
+                    System.IO.File.WriteAllText(myPath + @"\me.php", codestart + code + "\r\n?>");
+                    Process start = new Process();
+                    start.StartInfo.FileName = @"C:\php\php.exe";
+                    start.StartInfo.Arguments = myPath + @"\me.php";
+                    start.StartInfo.UseShellExecute = true;
+                    start.Start();
+                    start.WaitForExit();
                 }
             }
         }
