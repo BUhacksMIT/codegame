@@ -17,7 +17,6 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Media;
-<<<<<<< HEAD
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -26,10 +25,6 @@ using System;
 using System.Collections;
 
 
-=======
-using System.Security.Permissions;
-using System.Diagnostics;
->>>>>>> 01a91524383dc6a82f6ac76466fe3bf3c9531925
 
 //FINAL
 namespace game_interface
@@ -253,6 +248,12 @@ public  void StartClient() {
         void deleteImage(Image ship)
         {
             ship.Source = null;
+        }
+
+        void blowShip(Image ship)
+        { 
+        
+        
         }
 
         void animateFire(int[] loc, int[] newLoc)
@@ -607,53 +608,12 @@ public  void StartClient() {
 
         private void inputConsole_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (inputConsole.Text == "Welcome to Console Wars! Enter your input here...")
-            {
-                inputConsole.Text = "";
-            }
-        }
-
-        private void host_GotFocus(object sender, RoutedEventArgs e)
-        {
-            Host.Text = "";
-        }
-
-        private void port_GotFocus(object sender, RoutedEventArgs e)
-        {
-            Port.Text = "";
+            inputConsole.Text = "";
         }
 
         private void Load_Click(object sender, RoutedEventArgs e)
         {
-            if (Host.Text != "Host" || Port.Text != "Port")
-            {
-                string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
-                string codestart = "from client import Client\r\nfrom client import resultcodes\r\nfrom client import Directions\r\nfrom client import Ship\r\nimport random\r\nimport time\r\nimport math\r\nrandom.seed()\r\ngameclient = Client(\""+Host.Text+"\","+Port.Text+")\r\n";
-                if (language == "0")
-                {
-                    string myPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\log";
-                    string code = this.inputConsole.Text;
-                    System.IO.File.WriteAllText(myPath + @"\me.py", codestart + code + "\r\ns.close()");
-                    Process start = new Process();
-                    start.StartInfo.FileName = @"C:\Python33\python.exe";
-                    start.StartInfo.Arguments = myPath + @"\me.py";
-                    start.StartInfo.UseShellExecute = false;
-                    start.StartInfo.RedirectStandardOutput = true;
-                    start.Start();
-                    DebugBox.Text += "\r\n"+start.StandardOutput.ReadToEnd();
-                    start.WaitForExit();
-                    
-                    /*using (Process process = Process.Start(start))
-                    {
-                        using (StreamReader reader = process.StandardOutput)
-                        {
-                            string result = reader.ReadToEnd();
-                            MessageBox.Show(result);
-                        }
-                    }*/
-
-                }
-            }
+            string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
         }
 
 
