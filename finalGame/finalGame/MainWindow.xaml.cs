@@ -151,7 +151,7 @@ public  void StartClient() {
             // This example uses port 11000 on the local computer.
             IPHostEntry ipHostInfo = Dns.Resolve("johnamoore.com");
             IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint remoteEP = new IPEndPoint(ipAddress,1342);
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress,1341);
 
             // Create a TCP/IP  socket.
             Socket sender = new Socket(AddressFamily.InterNetwork, 

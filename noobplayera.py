@@ -45,7 +45,7 @@ while (True):
         for id in mycoords:
             if id not in resval:
                 delcoords.append(id)
-                print("Removing my ship with id ", str(id, " since it's dead")
+                print("Removing my ship with id ", str(id), " since it's dead")
         for a in delcoords:
             del mycoords[a]
         print("Scouting enemy territory")
