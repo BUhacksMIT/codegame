@@ -65,21 +65,21 @@ class Client():
         message = str(opcode) + ";"
         for arg in args:
             message += str(arg) + ";"
-        print("sending command: " + message)
+        #print("sending command: " + message)
         self.s.send(bytes(str(message), "UTF-8"))
         response = self.s.recv(4096)
         print(response)
         return response
 
     def InitializeShip(self, x, y):
-        print("init ship")
+        #print("init ship")
         return pickle.loads(self._SendCommand(Opcodes.initialize_ship, x, y))
 
     def GetPlayerCoords(self):
         response = self._SendCommand(Opcodes.get_player_coords)
-        print("res:",response)
+        #print("res:",response)
         response = pickle.loads(response)
-        print("res2",response)
+        #print("res2",response)
         return response
 
     def Move(self, shipid, direction):
@@ -103,7 +103,7 @@ class Client():
         self._SendCommand(Opcodes.choose_lang, langs.Python)
         while (self.game_started == False):
             rescode, resval = self._GetGameStatus()
-            print("res:",resval[0])
+            #print("res:",resval[0])
             if (resval[0] == True):
                 self.board_width = int(resval[1])
                 self.board_height = int(resval[2])

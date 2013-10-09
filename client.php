@@ -113,19 +113,19 @@ while ($bytes == '') {
         //print("\r\nd1:".$d[1].":".$d[1].substr(1,1).":".$d[1].substr(1,1)."\r\n");
         if (substr($d[1], 0, 1) == "[") {
             if (substr($d[1], 1, 1) == "(") {
-                print ("special print");
+                //print ("special print");
                 $vals = str_replace(" ", "", explode("),", str_replace("]", "", str_replace("[", "", $d[1]))));
                 foreach ($vals as $s) {
                     $subvals = explode(",", str_replace(" ", "", str_replace("(", "", str_replace(")", "", $s))));
                     $x = intval($subvals[0]);
-                    print("got x = ".$x);
+                    //print("got x = ".$x);
                     $y = intval($subvals[1]);
                     $alive = $subvals[2] == "True" ? true : false;
                     $shipid= intval($subvals[3]);
                     $player = intval($subvals[4]);
                     $health = intval($subvals[5]);
                     $so = new Ship($x, $y, $alive, $shipid, $player, $health);
-                    print("so:".$so);
+                    //print("so:".$so);
                     $sos[] = $so;
                 }
                 $d[1] = $sos;
@@ -150,13 +150,13 @@ $num |= ord($char[0]) << 24;
 return $num;
 }
     function InitializeShip($x, $y) {
-        print("init ship");
+        //print("init ship");
         return $this->SendCommand(Opcodes::initialize_ship, $x, $y);
     }
 
     function GetPlayerCoords() {
         $response = $this->SendCommand(Opcodes::get_player_coords);
-        print("res:".$response);
+        //print("res:".$response);
         return $response;
     }
 
@@ -169,7 +169,7 @@ return $num;
     }
 
     function Fire($shipid, $to_x, $to_y) {
-        print ("firing");
+        //print ("firing");
         return $this->SendCommand(Opcodes::fire, $shipid, $to_x, $to_y);
     }
 
@@ -206,7 +206,7 @@ return $num;
                 $this->max_range = intval($resval[3]);
                 $this->max_ships = intval($resval[4]);
                 $this->game_started = true;
-                print("Game started!");
+                //print("Game started!");
                 return true;
             } else {
                 //print("rv:".$resval[0]);

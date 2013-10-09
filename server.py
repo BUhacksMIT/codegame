@@ -491,10 +491,13 @@ if __name__ == '__main__':
 
     address2 = ('localhost', 1339) # let the kernel give us a port
     server2 = EchoServer(address2, EchoRequestHandler)
-    
-    address3 = ('localhost', 1341) # let the kernel give us a port
+	
+    address3 = ('localhost', 1341)
     server3 = EchoServer(address3, InterfaceRequestHandler, True)
 
+
+    address4 = ('localhost', 1342) # let the kernel give us a port
+    server4 = EchoServer(address4, InterfaceRequestHandler, True)
     t = threading.Thread(target=server.serve_forever)
     t.setDaemon(True) # don't hang on exit
     t.start()
@@ -507,6 +510,9 @@ if __name__ == '__main__':
     t3.setDaemon(True) # don't hang on exit
     t3.start()
 
+    t4 = threading.Thread(target=server4.serve_forever)
+    t4.setDaemon(True) # don't hang on exit
+    t4.start()
     logger = logging.getLogger('client')
     logger.info('Server on %s:%s', ip, port)
 
