@@ -19,7 +19,6 @@
             </ComboBox>
             <TextBox x:Name="Host" Height="23" TextWrapping="Wrap" Text="Host" Width="120" Canvas.Left="27" Canvas.Top="22" GotFocus="host_GotFocus"/>
             <TextBox x:Name="Port" Height="23" TextWrapping="Wrap" Text="Port" Width="120" Canvas.Left="163" Canvas.Top="22" GotFocus="port_GotFocus"/>
-            <TextBox x:Name="DebugBox" Height="70" TextWrapping="Wrap" Text="Debug Box" Width="445" Canvas.Left="125" Canvas.Top="646" Background="Transparent"  Foreground="LightGray"/>
 
         </Canvas>
 

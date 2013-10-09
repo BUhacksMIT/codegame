@@ -23,8 +23,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System;
 using System.Collections;
-
-
+using System.IO;
+using System.Media;
+using System.Security.Permissions;
+using System.Diagnostics;
 
 //FINAL
 namespace game_interface
@@ -613,7 +615,34 @@ public  void StartClient() {
 
         private void Load_Click(object sender, RoutedEventArgs e)
         {
-            string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
+            if (Host.Text != "Host" || Port.Text != "Port")
+            {
+                string myPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\log";
+                string language = this.ChooseCodingLanguage.SelectedIndex.ToString();
+                string codestart = "from client import Client\r\nfrom client import resultcodes\r\nfrom client import Directions\r\nfrom client import Ship\r\nimport random\r\nimport time\r\nimport math\r\nrandom.seed()\r\ngameclient = Client(\"" + Host.Text + "\"," + Port.Text + ")\r\n";
+                if (language == "0")
+                {
+                    string code = inputConsole.Text;
+                    System.IO.File.WriteAllText(myPath + @"\me.py", codestart + code + "\r\ns.close()");
+                    Process start = new Process();
+                    start.StartInfo.FileName = @"C:\Python33\python.exe";
+                    start.StartInfo.Arguments = myPath + @"\me.py";
+                    start.StartInfo.UseShellExecute = true;
+                    //start.StartInfo.RedirectStandardOutput = true;
+                    start.Start();
+                    start.WaitForExit();
+
+                    /*using (Process process = Process.Start(start))
+                    {
+                        using (StreamReader reader = process.StandardOutput)
+                        {
+                            string result = reader.ReadToEnd();
+                            MessageBox.Show(result);
+                        }
+                    }*/
+
+                }
+            }
         }
 
 
@@ -634,7 +663,15 @@ public  void StartClient() {
 
         }
 
+        private void host_GotFocus(object sender, RoutedEventArgs e)
+        {
+            Host.Text = "";
+        }
 
+        private void port_GotFocus(object sender, RoutedEventArgs e)
+        {
+            Port.Text = "";
+        }
 
 
 
