@@ -19,6 +19,13 @@ class fileOpcodes():
     #loc = (x,y)
     #newLoc = (x,y)
 
+interfacequeues = {}
+
+def AddInterfaceQueueMsg(msg):
+    for k in list(interfacequeues.keys()):
+        interfacequeues[k].put(msg)
+    return True
+
 class fileWriter():
     def __init__(self):
        self.logFile = open('log.txt','w')
@@ -32,24 +39,30 @@ class fileWriter():
         if opCode == fileOpcodes.instantiate:
             # "playerID opCode (x,y)" where (x,y) is a location on the grid
             print(fileOpcodes.instantiate, playerID, loc, file=self.logFile, end="\r\n", sep=";")
+            AddInterfaceQueueMsg(str(fileOpcodes.instantiate) + ";" + str(playerID) + ";" + str(loc))
         #Move ship from loc to newLoc
         elif opCode == fileOpcodes.move:
             # "playerID opcode (x,y) (a,b)" where (x,y) and (a,b) are locations on the grid
             print(fileOpcodes.move,playerID,loc,newLoc,file = self.logFile,end="\r\n",sep=";")
+            AddInterfaceQueueMsg(str(fileOpcodes.move) + ";" + str(playerID) + ";" + str(loc) + ";" + str(newLoc))
         #Fire from loc to newLoc
         elif opCode == fileOpcodes.fire:
             # "playerID opcode (x,y) (a,b)" where (x,y) and (a,b) are locations on the grid
             print(fileOpcodes.fire,playerID,loc,newLoc,file = self.logFile,end="\r\n",sep=";")
+            AddInterfaceQueueMsg(str(fileOpcodes.fire) + ";" + str(playerID) + ";" + str(loc) + ";" + str(newLoc))
         #Remove a ship from the grid
         elif opCode == fileOpcodes.kill:
             # "playerID opCode (x,y)" where (x,y) is a location on the grid
             print(fileOpcodes.kill,playerID,loc,file = self.logFile,end="\r\n",sep=";")
+            AddInterfaceQueueMsg(str(fileOpcodes.kill) + ";" + str(playerID) + ";" + str(loc))
         #end the game, playerID wins
         elif opCode == fileOpcodes.endgame:
             self.logFile.write(str(fileOpcodes.endgame)+";"+str(playerID)+"\r\n")
+            AddInterfaceQueueMsg(str(fileOpcodes.endgame) + ";" + str(playerID))
             self.logFile.close()
         elif opCode == fileOpcodes.eliminated:
             print(fileOpcodes.eliminated,playerID, file=self.logFile, end="\r\n", sep=";")
+            AddInterfaceQueueMsg(str(fileOpcodes.eliminated) + ";" + str(playerID))
 
 players = {}
 
@@ -291,6 +304,36 @@ def ReturnToPlayer(playerid, retval):
 logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
                     )
+class InterfaceRequestHandler(socketserver.BaseRequestHandler):
+    def __init__(self, request, client_address, server):
+        self.logger = logging.getLogger('EchoRequestHandler')
+        print("init conn")
+        self.logger.debug('__init__')
+        self.playerid = client_address[1]
+        request.settimeout(0)
+        socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
+        return
+
+    def setup(self):
+        self.logger.debug('setup')
+        return socketserver.BaseRequestHandler.setup(self)
+
+    def handle(self):
+        self.logger.debug('handle')
+        data =  self.request.recv(1024, socket.MSG_PEEK)
+        #args = data.decode("UTF-8").split(";")
+        q = interfacequeues[self.playerid]
+        while (1==1):
+            if (q.empty() == False):
+                msg = q.get()
+                print("SENDING:::::::::::::::::::", msg)
+                self.request.send(bytes(msg, "UTF-8"))
+                print(msg)
+
+
+    def finish(self):
+        self.logger.debug('finish')
+        return socketserver.BaseRequestHandler.finish(self)
 
 class EchoRequestHandler(socketserver.BaseRequestHandler):
     
@@ -385,9 +428,10 @@ class EchoRequestHandler(socketserver.BaseRequestHandler):
 
 class EchoServer(socketserver.TCPServer):
     
-    def __init__(self, server_address, handler_class=EchoRequestHandler):
+    def __init__(self, server_address, handler_class=EchoRequestHandler, interface=False):
         self.logger = logging.getLogger('EchoServer')
         self.logger.debug('__init__')
+        self.interface = interface
         socketserver.TCPServer.__init__(self, server_address, handler_class)
         return
 
@@ -409,13 +453,16 @@ class EchoServer(socketserver.TCPServer):
 
     def verify_request(self, request, client_address):
         self.logger.debug('verify_request(%s, %s)', request, client_address)
-        if (game.started == True):
-            request.close()
-            return False
-        print("ADD PLAYER");
-        players[client_address[1]] = Player()
-        game.playercount += 1
-        Player.playerfileids[client_address[1]] = game.playercount
+        if (self.interface == False):
+            if (game.started == True):
+                request.close()
+                return False
+            print("ADD PLAYER");
+            players[client_address[1]] = Player()
+            game.playercount += 1
+            Player.playerfileids[client_address[1]] = game.playercount
+        else:
+            interfacequeues[client_address[1]] = queue.LifoQueue()
         return socketserver.TCPServer.verify_request(self, request, client_address)
 
     def process_request(self, request, client_address):
@@ -445,6 +492,8 @@ if __name__ == '__main__':
     address2 = ('localhost', 1339) # let the kernel give us a port
     server2 = EchoServer(address2, EchoRequestHandler)
     
+    address3 = ('localhost', 1341) # let the kernel give us a port
+    server3 = EchoServer(address3, InterfaceRequestHandler, True)
 
     t = threading.Thread(target=server.serve_forever)
     t.setDaemon(True) # don't hang on exit
@@ -454,6 +503,9 @@ if __name__ == '__main__':
     t2.setDaemon(True) # don't hang on exit
     t2.start()
 
+    t3 = threading.Thread(target=server3.serve_forever)
+    t3.setDaemon(True) # don't hang on exit
+    t3.start()
 
     logger = logging.getLogger('client')
     logger.info('Server on %s:%s', ip, port)

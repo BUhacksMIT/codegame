@@ -17,10 +17,31 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Media;
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System;
+using System.Collections;
+
+
 
 //FINAL
 namespace game_interface
 {
+    // State object for receiving data from remote device.
+    public class StateObject
+    {
+        // Client socket.
+        public Socket workSocket = null;
+        // Size of receive buffer.
+        public const int BufferSize = 256;
+        // Receive buffer.
+        public byte[] buffer = new byte[BufferSize];
+        // Received data string.
+        public StringBuilder sb = new StringBuilder();
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -49,6 +70,8 @@ namespace game_interface
         bool horiz;
         bool up;
         bool right;
+        Queue myQ;
+        Queue mySyncdQ;
 
         DispatcherTimer timer;
         string[] commands;
@@ -119,7 +142,63 @@ namespace game_interface
 
             }//for
         }//CreateGrid
+        
+public  void StartClient() {
+        // Data buffer for incoming data.
+        byte[] bytes = new byte[1024];
 
+        // Connect to a remote device.
+        try {
+            // Establish the remote endpoint for the socket.
+            // This example uses port 11000 on the local computer.
+            IPHostEntry ipHostInfo = Dns.Resolve("localhost");
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress,1341);
+
+            // Create a TCP/IP  socket.
+            Socket sender = new Socket(AddressFamily.InterNetwork, 
+                SocketType.Stream, ProtocolType.Tcp );
+
+            // Connect the socket to the remote endpoint. Catch any errors.
+            try {
+                sender.Connect(remoteEP);
+
+                Console.WriteLine("Socket connected to {0}",
+                    sender.RemoteEndPoint.ToString());
+
+                // Encode the data string into a byte array.
+                byte[] msg = Encoding.ASCII.GetBytes("begin");
+
+                // Send the data through the socket.
+                int bytesSent = sender.Send(msg);
+
+                // Receive the response from the remote device.
+                while (1 == 1)
+                {
+                    int bytesRec = sender.Receive(bytes);
+                    //Console.WriteLine("Echoed test = {0}",
+                    //);
+                    String resp = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    mySyncdQ.Enqueue(resp);
+                    Thread.Sleep(100);
+
+                }
+                // Release the socket.
+                sender.Shutdown(SocketShutdown.Both);
+                sender.Close();
+                
+            } catch (ArgumentNullException ane) {
+                Console.WriteLine("ArgumentNullException : {0}",ane.ToString());
+            } catch (SocketException se) {
+                Console.WriteLine("SocketException : {0}",se.ToString());
+            } catch (Exception e) {
+                Console.WriteLine("Unexpected exception : {0}", e.ToString());
+            }
+
+        } catch (Exception e) {
+            Console.WriteLine( e.ToString());
+        }
+    }
         void placeObj(Image shipIM, double x, double y, double rows, double cols)
         {
 
@@ -292,14 +371,15 @@ namespace game_interface
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            if (i < commands.Length)
-            {
-                string test = commands[i];
-                if (commands[i][0] == '1')
+            //if (i < commands.Length)
+            //{
+            if (mySyncdQ.Count > 0) {
+                string test = (string) mySyncdQ.Dequeue();//commands[i];
+                if (test[0] == '1')
                 {
                     //Place a new ship
-                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                    string[] arguments = commands[i].Split(';');
+                    test = test.Substring(2, test.Length - 3);
+                    string[] arguments = test.Split(';');
                     int playerID = Convert.ToInt32(arguments[0]);
                     string[] arg2 = arguments[1].Replace("(", "").Replace(")", "").Split(',');
                     int[] loc = { Convert.ToInt32(arg2[0]), Convert.ToInt32(arg2[1]) };
@@ -308,11 +388,11 @@ namespace game_interface
                     placeShip(playerID, loc);
                     updateTimerInterval((int)Char.GetNumericValue(commands[i + 1][0]));
                 }
-                else if (commands[i][0] == '2')
+                else if (test[0] == '2')
                 {
                     //Move a ship
-                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                    string[] arguments = commands[i].Split(';');
+                    test = test.Substring(2, test.Length - 3);
+                    string[] arguments = test.Split(';');
                     int playerID = Convert.ToInt32(arguments[0]);
                     string[] arg2 = arguments[1].Replace("(", "").Replace(")", "").Split(',');
                     int[] loc = { Convert.ToInt32(arg2[0]), Convert.ToInt32(arg2[1]) };
@@ -323,11 +403,11 @@ namespace game_interface
                     moveShip(playerID, loc, newLoc);
                     updateTimerInterval((int)Char.GetNumericValue(commands[i + 1][0]));
                 }
-                else if (commands[i][0] == '3')
+                else if (test[0] == '3')
                 {
                     //Fire at another ship
-                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                    string[] arguments = commands[i].Split(';');
+                    test = test.Substring(2, test.Length - 3);
+                    string[] arguments = test.Split(';');
                     int playerID = Convert.ToInt32(arguments[0]);
                     string[] arg2 = arguments[1].Replace("(", "").Replace(")", "").Split(',');
                     int[] loc = { Convert.ToInt32(arg2[0]), Convert.ToInt32(arg2[1]) };
@@ -339,11 +419,11 @@ namespace game_interface
                     updateTimerInterval((int)Char.GetNumericValue(commands[i + 1][0]));
 
                 }
-                else if (commands[i][0] == '4')
+                else if (test[0] == '4')
                 {
                     //Remove a ship from grid
-                    commands[i] = commands[i].Substring(2, commands[i].Length - 3);
-                    string[] arguments = commands[i].Split(';');
+                    test = test.Substring(2, test.Length - 3);
+                    string[] arguments = test.Split(';');
                     int playerID = Convert.ToInt32(arguments[0]);
                     string[] arg2 = arguments[1].Replace("(", "").Replace(")", "").Split(',');
                     int[] loc = { Convert.ToInt32(arg2[0]), Convert.ToInt32(arg2[1]) };
@@ -352,19 +432,19 @@ namespace game_interface
                     removeShip(playerID, loc);
                     updateTimerInterval((int)Char.GetNumericValue(commands[i + 1][0]));
                 }
-                else if (commands[i][0] == '5')
+                else if (test[0] == '5')
                 {
-                    int playerID = (int)Char.GetNumericValue(commands[i][2]);
+                    int playerID = (int)Char.GetNumericValue(test[2]);
                     endGame(playerID);
                     timer.Stop();
                     return;
                 }
-                else if (commands[i][0] == '6')
+                else if (test[0] == '6')
                 {
-                    int playerID = (int)Char.GetNumericValue(commands[i][2]);
+                    int playerID = (int)Char.GetNumericValue(test[2]);
                     eliminate(playerID);
                 }
-                i++;
+               // i++;
             }
         }
 
@@ -518,6 +598,11 @@ namespace game_interface
         private void Execute_Click(object sender, RoutedEventArgs e)
         {
             //get string from text box and write to file
+            Thread thread = new Thread(StartClient);
+            thread.Start();
+
+            myQ = new Queue();
+            mySyncdQ = Queue.Synchronized(myQ);
             startGame();
         }
 
